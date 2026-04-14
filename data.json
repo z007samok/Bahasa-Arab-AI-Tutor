@@ -1,1 +1,34 @@
-
+{
+  "senarai_bab": [
+    {
+      "id": "1",
+      "tajuk": "Fi'il Madhi (Kata Kerja Lampau)",
+      "penerangan": "Fi'il Madhi ialah kata kerja yang menunjukkan perbuatan yang telah berlaku. Secara asasnya, ia berbaris atas (fathah) di hujung bagi kata ganti nama ketiga (Huwa). Contohnya: كَتَبَ (Dia telah menulis).",
+      "kaitan": ["2", "3"]
+    },
+    {
+      "id": "2",
+      "tajuk": "Fi'il Mudhari' (Kata Kerja Sekarang/Akan Datang)",
+      "penerangan": "Fi'il Mudhari' menunjukkan perbuatan yang sedang atau akan berlaku. Ia biasanya bermula dengan huruf tambahan (Alif, Nun, Ya, Ta). Contohnya: يَكْتُبُ (Dia sedang menulis).",
+      "kaitan": ["1", "3"]
+    },
+    {
+      "id": "3",
+      "tajuk": "Wazan Thulathi Mujarrad",
+      "penerangan": "Wazan ialah acuan atau pola timbangan bagi kata kerja. Thulathi Mujarrad bermaksud kata kerja asas yang terdiri daripada 3 huruf tanpa tambahan. Terdapat 6 bab utama seperti Fa'ala-Yaf'ulu.",
+      "kaitan": ["1", "2"]
+    },
+    {
+      "id": "4",
+      "tajuk": "Isim (Kata Nama)",
+      "penerangan": "Isim ialah perkataan yang menunjukkan manusia, haiwan, tumbuhan, benda tegar, tempat, masa, atau sifat yang tidak terikat dengan masa.",
+      "kaitan": ["5"]
+    },
+    {
+      "id": "5",
+      "tajuk": "Tanda-tanda Isim",
+      "penerangan": "Sesuatu perkataan dikenali sebagai Isim jika ia mempunyai Alif Lam (ال), Tanwin, atau didahului oleh Huruf Jar.",
+      "kaitan": ["4"]
+    }
+  ]
+}
