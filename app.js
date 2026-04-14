@@ -198,4 +198,3 @@ function pergiKeFasa3() {
         janaKuiz(hasilAI.innerText);
     }
 }
-}
