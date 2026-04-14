@@ -188,3 +188,68 @@ function kembaliKeMenu() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'none';
 }
+
+async function janaKuiz(teksAnalisis) {
+    const quizContainer = document.getElementById('quiz-container');
+    const quizContent = document.getElementById('quiz-content');
+    
+    quizContainer.style.display = 'block';
+    quizContent.innerHTML = "Sedang menjana kuiz...";
+
+    const promptKuiz = `
+        Berdasarkan analisis nahu ini: "${teksAnalisis}", 
+        bina 3 soalan objektif ringkas dalam bahasa Melayu.
+        Berikan jawapan dalam format JSON seperti ini:
+        [
+          {"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0},
+          ...
+        ]
+        Hanya berikan JSON sahaja.
+    `;
+
+    try {
+        const response = await fetch(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptKuiz }] }]
+            })
+        });
+
+        const data = await response.json();
+        const rawJson = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "");
+        const soalanArray = JSON.parse(rawJson);
+
+        paparkanKuiz(soalanArray);
+    } catch (err) {
+        quizContent.innerHTML = "Gagal menjana kuiz. Sila cuba lagi.";
+    }
+}
+
+function paparkanKuiz(soalanArray) {
+    const quizContent = document.getElementById('quiz-content');
+    quizContent.innerHTML = ""; // Kosongkan loading
+
+    soalanArray.forEach((s, index) => {
+        let html = `<p><strong>Soalan ${index + 1}:</strong> ${s.soalan}</p>`;
+        s.pilihan.forEach((p, pIndex) => {
+            html += `
+                <button onclick="semakJawapan(${index}, ${pIndex}, ${s.jawapan}, this)" 
+                        style="display:block; margin: 5px 0; padding: 8px; width: 100%; text-align: left; cursor:pointer;">
+                    ${p}
+                </button>
+            `;
+        });
+        quizContent.innerHTML += `<div style="margin-bottom:20px;">${html}</div>`;
+    });
+}
+
+function semakJawapan(sIndex, pilihIndex, betulIndex, btn) {
+    if (pilihIndex === betulIndex) {
+        btn.style.backgroundColor = "#c3e6cb";
+        alert("Betul! 🎉");
+    } else {
+        btn.style.backgroundColor = "#f5c6cb";
+        alert("Salah, cuba lagi! ❌");
+    }
+}
