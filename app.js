@@ -135,28 +135,18 @@ async function pergiKeFasa2() {
     }
 }
 
-// ---------------- FASA 3: PENJANAAN KUIZ DINAMIK ----------------
+// --- FASA 3: PENJANAAN KUIZ ---
 
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
     
-    quizContainer.style.display = 'block';
-    quizContent.innerHTML = "<p>⏳ AI sedang membina soalan untuk anda...</p>";
-    
-    // Tatal skrin ke bawah supaya nampak kuiz
-    quizContainer.scrollIntoView({ behavior: 'smooth' });
+    if (!quizContainer || !quizContent) return;
 
-    const promptKuiz = `
-        Berdasarkan analisis nahu ini: "${teksAnalisis}", 
-        bina 3 soalan objektif ringkas dalam bahasa Melayu untuk menguji kefahaman.
-        Berikan jawapan dalam format JSON sahaja seperti ini:
-        [
-          {"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."},
-          {"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 1, "penjelasan": "..."}
-        ]
-        Pastikan "jawapan" adalah nombor indeks (0, 1, atau 2).
-    `;
+    quizContainer.style.display = 'block';
+    quizContent.innerHTML = "Sedang menjana kuiz...";
+
+    const promptKuiz = "Berdasarkan analisis ini: " + teksAnalisis + ", bina 3 soalan objektif ringkas dlm Bahasa Melayu. Berikan JSON sahaja: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0}]";
 
     try {
         const response = await fetch(GEMINI_URL, {
@@ -173,7 +163,8 @@ async function janaKuiz(teksAnalisis) {
 
         paparkanKuiz(soalanArray);
     } catch (err) {
-        quizContent.innerHTML = "<p style='color:red;'>Gagal menjana kuiz. Sila cuba lagi.</p>";
+        quizContent.innerHTML = "Gagal menjana kuiz. Sila cuba lagi.";
+        console.error(err);
     }
 }
 
@@ -181,56 +172,30 @@ function paparkanKuiz(soalanArray) {
     const quizContent = document.getElementById('quiz-content');
     quizContent.innerHTML = ""; 
 
-    soalanArray.forEach((s, sIndex) => {
-        let html = `<div id="soalan-blok-${sIndex}" style="margin-bottom:25px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                        <p><strong>Soalan ${sIndex + 1}:</strong> ${s.soalan}</p>`;
-        
+    soalanArray.forEach((s, index) => {
+        let html = "<p><strong>Soalan " + (index + 1) + ":</strong> " + s.soalan + "</p>";
         s.pilihan.forEach((p, pIndex) => {
-            html += `
-                <button class="btn-pilihan" onclick="semakJawapanBaru(${sIndex}, ${pIndex}, ${s.jawapan}, '${s.penjelasan.replace(/'/g, "\\'")}', this)" 
-                        style="display:block; margin: 8px 0; padding: 10px; width: 100%; text-align: left; cursor:pointer; background: white; border: 1px solid #ddd; border-radius: 5px;">
-                    ${p}
-                </button>
-            `;
+            html += "<button onclick=\"semakJawapanBaru(" + index + "," + pIndex + "," + s.jawapan + ", this)\" style=\"display:block; margin: 5px 0; padding: 10px; width: 100%; text-align: left;\">" + p + "</button>";
         });
-        
-        html += `<div id="feedback-${sIndex}" style="margin-top:10px; font-weight:bold; display:none;"></div></div>`;
-        quizContent.innerHTML += html;
+        quizContent.innerHTML += "<div style='margin-bottom:20px;'>" + html + "</div>";
     });
 }
 
-function semakJawapanBaru(sIndex, pilihIndex, betulIndex, penjelasan, btn) {
-    const feedbackDiv = document.getElementById(`feedback-${sIndex}`);
-    const semuaButang = document.querySelectorAll(`#soalan-blok-${sIndex} .btn-pilihan`);
-
-    // Matikan semua butang dalam blok soalan ini supaya tidak boleh klik banyak kali
-    semuaButang.forEach(b => b.disabled = true);
-
+function semakJawapanBaru(sIndex, pilihIndex, betulIndex, btn) {
     if (pilihIndex === betulIndex) {
-        btn.style.backgroundColor = "#c3e6cb"; // Hijau
-        btn.style.borderColor = "#28a745";
-        feedbackDiv.innerHTML = `✅ Betul! ${penjelasan}`;
-        feedbackDiv.style.color = "#155724";
+        btn.style.backgroundColor = "#c3e6cb";
+        alert("Betul! 🎉");
     } else {
-        btn.style.backgroundColor = "#f5c6cb"; // Merah
-        btn.style.borderColor = "#dc3545";
-        feedbackDiv.innerHTML = `❌ Salah. Jawapan betul ialah pilihan ke-${betulIndex + 1}. ${penjelasan}`;
-        feedbackDiv.style.color = "#721c24";
+        btn.style.backgroundColor = "#f5c6cb";
+        alert("Salah, cuba lagi! ❌");
     }
-    feedbackDiv.style.display = "block";
 }
 
-function kembaliKeMenu() {
-    document.getElementById('section-menu').style.display = 'block';
-    document.getElementById('section-kandungan').style.display = 'none';
-    document.getElementById('section-fasa2').style.display = 'none';
-    document.getElementById('quiz-container').style.display = 'none';
-}
-// Jambatan untuk mengelakkan ralat ReferenceError
+// Jambatan untuk butang lama di HTML
 function pergiKeFasa3() {
-    // Kita ambil teks ayat yang sedang dipaparkan di Fasa 2
-    const teksAnalisis = document.getElementById('hasil-ai').innerText;
-    
-    // Panggil fungsi janaKuiz yang baru
-    janaKuiz(teksAnalisis);
+    const hasilAI = document.getElementById('hasil-ai');
+    if (hasilAI) {
+        janaKuiz(hasilAI.innerText);
+    }
+}
 }
