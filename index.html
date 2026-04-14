@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pembelajaran Bahasa Arab AI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: auto; background-color: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #2980b9; }
+        .kaitan-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        #teks-penerangan { font-size: 1.1em; color: #444; background: #eef2f3; padding: 15px; border-left: 5px solid #3498db; }
+    </style>
+</head>
+<body>
+    <div id="setup-api" style="display:none; background: #f8f9fa; padding: 20px; border-bottom: 2px solid #dee2e6; text-align: center;">
+    <h3>🔐 Konfigurasi AI Tutor</h3>
+    <p>Masukkan API Key Gemini anda untuk mengaktifkan fungsi AI Al-Quran & Kuiz.</p>
+    <input type="password" id="api-input" placeholder="AIzaSy..." style="width: 350px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+    <button onclick="simpanKey()" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Simpan & Aktifkan</button>
+    <p style="font-size: 0.8em; color: #6c757d; margin-top: 10px;">
+        Nota: Key anda disimpan secara selamat dalam peranti anda (Local Storage) dan tidak akan dihantar ke GitHub.
+    </p>
+</div>
+    <div class="container">
+        <h1>Modul Arab Interaktif</h1>
+        
+        <div id="section-menu">
+            <h3>Sila Pilih Bab:</h3>
+            <div id="senarai-butang"></div>
+        </div>
 
+        <div id="section-kandungan" style="display:none;">
+            <h2 id="tajuk-aktif"></h2>
+            <div id="teks-penerangan"></div>
+            
+            <div class="kaitan-section">
+                <h4>Topik Berkaitan:</h4>
+                <div id="butang-kaitan"></div>
+            </div>
+            
+            <br>
+            <button onclick="kembaliKeMenu()" style="background-color: #95a5a6;">← Kembali ke Menu</button>
+            <button onclick="pergiKeFasa2()" style="background-color: #2ecc71;">Teruskan ke Contoh Al-Quran →</button>
+        </div>
+        
+        <div id="section-fasa2" style="display:none;">
+            <h2>Contoh Dari Al-Quran</h2>
+            <div id="loading-ai" style="color: blue; font-style: italic;"></div>
+            <div id="hasil-ai" style="background: #fff8e1; padding: 20px; border-radius: 8px; border: 1px solid #ffe082;"></div>
+            <br>
+            <button onclick="paparKandungan(databaseBab.find(b => b.tajuk === babAktif).id)" style="background-color: #95a5a6;">← Balik ke Penerangan</button>
+            <button onclick="pergiKeFasa3()" style="background-color: #9b59b6;">Uji Kefahaman (Kuiz) →</button>
+         </div>
+
+         <div id="section-fasa3" style="display:none;">
+            <h2>Uji Kefahaman (Kuiz)</h2>
+            <div id="loading-kuiz" style="color: purple; font-style: italic;"></div>
+    
+            <div id="soalan-container" style="background: #e3f2fd; padding: 20px; border-radius: 8px; border: 1px solid #90caf9;">
+               <p id="teks-soalan" style="font-weight: bold; font-size: 1.2em;"></p>
+               <div id="pilihan-jawapan"></div>
+            </div>
+    
+           <div id="maklum-balas" style="margin-top: 15px; font-weight: bold;"></div>
+    
+           <br>
+           <button onclick="pergiKeFasa2()" style="background-color: #95a5a6;">← Balik ke Contoh Al-Quran</button>
+           <button id="btn-fasa4" onclick="pergiKeFasa4()" style="display:none; background-color: #e91e63;">Teruskan ke Latihan Sebutan (Fasa 4) →</button>
+         </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
