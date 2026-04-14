@@ -226,3 +226,11 @@ function kembaliKeMenu() {
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('quiz-container').style.display = 'none';
 }
+// Jambatan untuk mengelakkan ralat ReferenceError
+function pergiKeFasa3() {
+    // Kita ambil teks ayat yang sedang dipaparkan di Fasa 2
+    const teksAnalisis = document.getElementById('hasil-ai').innerText;
+    
+    // Panggil fungsi janaKuiz yang baru
+    janaKuiz(teksAnalisis);
+}
