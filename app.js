@@ -32,7 +32,7 @@ function aktifkanApp() {
     GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     
     // Panggil fungsi asal untuk paparkan senarai bab
-    muatTurunData(); 
+    binaMenuUtama(); 
 }
 
 // Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
