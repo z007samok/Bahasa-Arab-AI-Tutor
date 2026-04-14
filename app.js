@@ -28,21 +28,11 @@ function simpanKey() {
 
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
-    // Bina URL menggunakan model 2.5 Flash yang kita sahkan tadi
     GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     
-    // Panggil fungsi asal untuk paparkan senarai bab
-    if (databaseBab.length > 0) {
-        binaMenuUtama();
-    } else {
-        // Jika data belum siap di-fetch, kita panggil fetch semula
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                databaseBab = data.senarai_bab;
-                binaMenuUtama();
-            });
-    }
+    // TUKAR BARIS DI BAWAH INI:
+    binaMenuUtama(); 
+}
 
 // Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
 function hapusKey() {
