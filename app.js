@@ -43,7 +43,6 @@ function aktifkanApp() {
                 binaMenuUtama();
             });
     }
-}
 
 // Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
 function hapusKey() {
