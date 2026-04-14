@@ -198,3 +198,10 @@ function pergiKeFasa3() {
         janaKuiz(hasilAI.innerText);
     }
 }
+
+function kembaliKeMenu() {
+    document.getElementById('section-menu').style.display = 'block';
+    document.getElementById('section-kandungan').style.display = 'none';
+    document.getElementById('section-fasa2').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'none';
+}
