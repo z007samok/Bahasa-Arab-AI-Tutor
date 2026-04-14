@@ -32,7 +32,18 @@ function aktifkanApp() {
     GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     
     // Panggil fungsi asal untuk paparkan senarai bab
-    binaMenuUtama(); 
+    if (databaseBab.length > 0) {
+        binaMenuUtama();
+    } else {
+        // Jika data belum siap di-fetch, kita panggil fetch semula
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                databaseBab = data.senarai_bab;
+                binaMenuUtama();
+            });
+    }
+}
 }
 
 // Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
