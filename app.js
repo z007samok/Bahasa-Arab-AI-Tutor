@@ -140,13 +140,18 @@ async function pergiKeFasa2() {
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
+    const loadingKuiz = document.getElementById('loading-kuiz');
     
     if (!quizContainer || !quizContent) return;
 
-    quizContainer.style.display = 'block';
-    quizContent.innerHTML = "⏳ AI sedang membina soalan untuk anda...";
+    document.getElementById('section-fasa2').style.display = 'none';
+    document.getElementById('section-fasa3').style.display = 'block';
+    
+    quizContainer.style.display = 'none';
+    loadingKuiz.innerText = "⏳ AI sedang membina soalan untuk anda...";
 
-    const promptKuiz = "Berdasarkan analisis ini: " + teksAnalisis + ", bina 3 soalan objektif ringkas dlm Bahasa Melayu. Berikan maklum balas dalam format JSON sahaja tanpa sebarang teks lain: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0}]";
+    // Prompt yang lebih tegas untuk memastikan AI hanya beri JSON
+    const promptKuiz = "Bina 3 soalan objektif dlm Bahasa Melayu berdasarkan: " + teksAnalisis + ". Berikan maklum balas dlm format JSON SAHAJA: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0, \"penjelasan\": \"...\"}]";
 
     try {
         const response = await fetch(GEMINI_URL, {
@@ -159,18 +164,24 @@ async function janaKuiz(teksAnalisis) {
 
         const data = await response.json();
 
-        // SEMAKAN KESELAMATAN (Mencegah ralat '0')
-        if (!data.candidates || data.candidates.length === 0) {
-            throw new Error("AI tidak memberikan respon. Cuba klik butang sekali lagi.");
+        // Jaring keselamatan untuk ralat '0'
+        if (!data.candidates || !data.candidates[0]) {
+            throw new Error("Respon AI tidak lengkap. Sila cuba lagi.");
         }
 
-        const rawJson = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+        let rawJson = data.candidates[0].content.parts[0].text;
+        // Bersihkan teks daripada simbol markdown ```json
+        rawJson = rawJson.replace(/```json/ig, '').replace(/```/g, '').trim();
+        
         const soalanArray = JSON.parse(rawJson);
 
+        loadingKuiz.innerText = "";
+        quizContainer.style.display = 'block';
         paparkanKuiz(soalanArray);
+
     } catch (err) {
-        console.error("Ralat Kuiz:", err);
-        quizContent.innerHTML = "<p style='color:red;'>Gagal menjana kuiz: " + err.message + "</p>";
+        console.error("Ralat:", err);
+        loadingKuiz.innerText = "Gagal menjana kuiz: " + err.message;
     }
 }
 
@@ -178,25 +189,42 @@ function paparkanKuiz(soalanArray) {
     const quizContent = document.getElementById('quiz-content');
     quizContent.innerHTML = ""; 
 
-    soalanArray.forEach((s, index) => {
-        let html = "<p><strong>Soalan " + (index + 1) + ":</strong> " + s.soalan + "</p>";
+    soalanArray.forEach((s, sIndex) => {
+        let html = `<div id="blok-${sIndex}" style="margin-bottom:20px; padding:10px; border-bottom:1px solid #ddd;">
+                        <p><strong>Soalan ${sIndex + 1}:</strong> ${s.soalan}</p>`;
+        
         s.pilihan.forEach((p, pIndex) => {
-            html += "<button onclick=\"semakJawapanBaru(" + index + "," + pIndex + "," + s.jawapan + ", this)\" style=\"display:block; margin: 5px 0; padding: 10px; width: 100%; text-align: left;\">" + p + "</button>";
+            html += `<button onclick="semakJawapanBaru(${sIndex}, ${pIndex}, ${s.jawapan}, '${s.penjelasan.replace(/'/g, "\\'")}', this)" 
+                             style="display:block; margin:5px 0; width:100%; text-align:left; background:white; color:black; border:1px solid #ccc;">
+                        ${p}
+                     </button>`;
         });
-        quizContent.innerHTML += "<div style='margin-bottom:20px;'>" + html + "</div>";
+        
+        html += `<div id="fb-${sIndex}" style="margin-top:10px; font-weight:bold; display:none;"></div></div>`;
+        quizContent.innerHTML += html;
     });
 }
 
-function semakJawapanBaru(sIndex, pilihIndex, betulIndex, btn) {
-    if (pilihIndex === betulIndex) {
-        btn.style.backgroundColor = "#c3e6cb";
-        alert("Betul! 🎉");
-    } else {
-        btn.style.backgroundColor = "#f5c6cb";
-        alert("Salah, cuba lagi! ❌");
-    }
-}
+function semakJawapanBaru(sIndex, pilihIndex, betulIndex, penjelasan, btn) {
+    const fb = document.getElementById(`fb-${sIndex}`);
+    const semuaButang = document.querySelectorAll(`#blok-${sIndex} button`);
+    
+    semuaButang.forEach(b => b.disabled = true);
 
+    if (pilihIndex === betulIndex) {
+        btn.style.backgroundColor = "#2ecc71";
+        btn.style.color = "white";
+        fb.innerHTML = "✅ Betul! " + penjelasan;
+        fb.style.color = "green";
+        document.getElementById('btn-fasa4').style.display = 'inline-block';
+    } else {
+        btn.style.backgroundColor = "#e74c3c";
+        btn.style.color = "white";
+        fb.innerHTML = "❌ Salah. " + penjelasan;
+        fb.style.color = "red";
+    }
+    fb.style.display = "block";
+}
 // Jambatan untuk butang lama di HTML
 function pergiKeFasa3() {
     const hasilAI = document.getElementById('hasil-ai');
