@@ -28,7 +28,7 @@ function simpanKey() {
 
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
-    GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY;
+    GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=" + API_KEY;
     
     // TUKAR BARIS DI BAWAH INI:
     binaMenuUtama(); 
