@@ -142,16 +142,15 @@ async function janaKuiz(teksAnalisis) {
     const quizContent = document.getElementById('quiz-content');
     const loadingKuiz = document.getElementById('loading-kuiz');
     
-    if (!quizContainer || !quizContent) return;
-
+    // Sembunyikan bahagian lama supaya tak nampak serabut
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'block';
     
     quizContainer.style.display = 'none';
-    loadingKuiz.innerText = "⏳ AI sedang membina soalan untuk anda...";
+    loadingKuiz.innerHTML = "<span style='color:orange;'>⏳ Sedang menghubungi AI (3-7 saat)...</span>";
 
-    // Prompt yang lebih tegas untuk memastikan AI hanya beri JSON
-    const promptKuiz = "Bina 3 soalan objektif dlm Bahasa Melayu berdasarkan: " + teksAnalisis + ". Berikan maklum balas dlm format JSON SAHAJA: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0, \"penjelasan\": \"...\"}]";
+    // Prompt yang lebih santai supaya AI tidak "mogok"
+    const promptKuiz = `Berdasarkan topik nahu Bahasa Arab ini: ${teksAnalisis}, sila hasilkan 3 soalan objektif ringkas dalam Bahasa Melayu. Berikan jawapan dalam format JSON sahaja seperti contoh ini: [{"soalan": "Apa itu...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
 
     try {
         const response = await fetch(GEMINI_URL, {
@@ -164,13 +163,16 @@ async function janaKuiz(teksAnalisis) {
 
         const data = await response.json();
 
-        // Jaring keselamatan untuk ralat '0'
+        // Cek jika API Key bermasalah atau limit habis
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
+
         if (!data.candidates || !data.candidates[0]) {
-            throw new Error("Respon AI tidak lengkap. Sila cuba lagi.");
+            throw new Error("AI sedang sibuk atau menolak permintaan. Sila klik butang sekali lagi.");
         }
 
         let rawJson = data.candidates[0].content.parts[0].text;
-        // Bersihkan teks daripada simbol markdown ```json
         rawJson = rawJson.replace(/```json/ig, '').replace(/```/g, '').trim();
         
         const soalanArray = JSON.parse(rawJson);
@@ -180,8 +182,8 @@ async function janaKuiz(teksAnalisis) {
         paparkanKuiz(soalanArray);
 
     } catch (err) {
-        console.error("Ralat:", err);
-        loadingKuiz.innerText = "Gagal menjana kuiz: " + err.message;
+        console.error("Ralat Detail:", err);
+        loadingKuiz.innerHTML = `<p style='color:red;'>⚠️ Ralat: ${err.message}<br><button onclick="location.reload()" style="background:gray">Refresh App</button></p>`;
     }
 }
 
