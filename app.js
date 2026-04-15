@@ -144,9 +144,9 @@ async function janaKuiz(teksAnalisis) {
     if (!quizContainer || !quizContent) return;
 
     quizContainer.style.display = 'block';
-    quizContent.innerHTML = "Sedang menjana kuiz...";
+    quizContent.innerHTML = "⏳ AI sedang membina soalan untuk anda...";
 
-    const promptKuiz = "Berdasarkan analisis ini: " + teksAnalisis + ", bina 3 soalan objektif ringkas dlm Bahasa Melayu. Berikan JSON sahaja: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0}]";
+    const promptKuiz = "Berdasarkan analisis ini: " + teksAnalisis + ", bina 3 soalan objektif ringkas dlm Bahasa Melayu. Berikan maklum balas dalam format JSON sahaja tanpa sebarang teks lain: [{\"soalan\": \"...\", \"pilihan\": [\"A\", \"B\", \"C\"], \"jawapan\": 0}]";
 
     try {
         const response = await fetch(GEMINI_URL, {
@@ -158,13 +158,19 @@ async function janaKuiz(teksAnalisis) {
         });
 
         const data = await response.json();
-        const rawJson = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "");
+
+        // SEMAKAN KESELAMATAN (Mencegah ralat '0')
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("AI tidak memberikan respon. Cuba klik butang sekali lagi.");
+        }
+
+        const rawJson = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
         const soalanArray = JSON.parse(rawJson);
 
         paparkanKuiz(soalanArray);
     } catch (err) {
-        quizContent.innerHTML = "Gagal menjana kuiz. Sila cuba lagi.";
-        console.error(err);
+        console.error("Ralat Kuiz:", err);
+        quizContent.innerHTML = "<p style='color:red;'>Gagal menjana kuiz: " + err.message + "</p>";
     }
 }
 
