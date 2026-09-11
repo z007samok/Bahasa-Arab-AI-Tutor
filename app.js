@@ -252,19 +252,15 @@ function pergiKeFasa4() {
     const fasa4Kalimah = document.getElementById('fasa4-kalimah');
     const statusSebutan = document.getElementById('status-sebutan');
 
-    if (!secFasa4) {
-        alert("Ralat: Elemen 'section-fasa4' tidak dijumpai dalam index.html!");
-        return;
-    }
-
-    // Paparkan Fasa 4 dan sembunyikan Fasa 3
     if (secFasa3) secFasa3.style.display = 'none';
-    secFasa4.style.display = 'block';
+    if (secFasa4) secFasa4.style.display = 'block';
 
-    // Cuba dapatkan perkataan Arab yang telah dipaparkan pada Fasa 2
+    // Cari perkataan sasaran daripada paparan Fasa 2
     const bekasPerkataan = document.querySelector('#hasil-ai span');
     if (bekasPerkataan && bekasPerkataan.innerText.trim() !== "") {
         perkataanFasa4 = bekasPerkataan.innerText.trim();
+    } else {
+        perkataanFasa4 = "كَتَبَ"; // Nilai sandaran jika belum jana perkataan
     }
 
     if (fasa4Kalimah) fasa4Kalimah.innerText = perkataanFasa4;
@@ -279,4 +275,89 @@ function kembaliKeFasa3() {
 function kembaliKeMenuUtamaDariFasa4() {
     document.getElementById('section-fasa4').style.display = 'none';
     document.getElementById('section-menu').style.display = 'block';
+}
+
+// 1. Dengar Sebutan (Text-to-Speech)
+function dengarSebutan() {
+    if (!('speechSynthesis' in window)) {
+        alert("Pelayar web ini tidak menyokong fungsi Text-to-Speech.");
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const teks = perkataanFasa4 && perkataanFasa4 !== "--" ? perkataanFasa4 : "كَتَبَ";
+    const sebutan = new SpeechSynthesisUtterance(teks);
+    sebutan.lang = 'ar-SA';
+    sebutan.rate = 0.8;
+
+    // Cari suara Arab khusus dalam sistem peranti jika tersedia
+    const senaraiSuara = window.speechSynthesis.getVoices();
+    const suaraArab = senaraiSuara.find(v => v.lang.startsWith('ar'));
+    if (suaraArab) {
+        sebutan.voice = suaraArab;
+    }
+
+    window.speechSynthesis.speak(sebutan);
+}
+
+// 2. Uji Sebutan (Speech Recognition)
+function mulaRakamSebutan() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const statusDiv = document.getElementById('status-sebutan');
+    const btnRekod = document.getElementById('btn-rekod');
+
+    if (!SpeechRecognition) {
+        statusDiv.innerHTML = "<span style='color:red;'>Pengecaman suara hanya disokong di Google Chrome atau pelayar Chromium.</span>";
+        return;
+    }
+
+    const pengecam = new SpeechRecognition();
+    pengecam.lang = 'ar-SA';
+    pengecam.interimResults = false;
+    pengecam.maxAlternatives = 3;
+
+    pengecam.onstart = function() {
+        if (btnRekod) {
+            btnRekod.innerText = "Mendengar... 🔴";
+            btnRekod.disabled = true;
+        }
+        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sebut sekarang ke mikrofon...</span>";
+    };
+
+    pengecam.onresult = function(event) {
+        const suaraDiterima = event.results[0][0].transcript.trim();
+
+        // Buang baris diakritik untuk perbandingan yang tepat
+        const buangBaris = (t) => t.replace(/[\u064B-\u065F\u0670]/g, '').trim();
+        const sasaranBersih = buangBaris(perkataanFasa4);
+        const inputBersih = buangBaris(suaraDiterima);
+
+        if (inputBersih.includes(sasaranBersih) || sasaranBersih.includes(inputBersih)) {
+            statusDiv.innerHTML = `<span style='color:green;'>✅ Sebutan Tepat! Suara dikesan: <strong>${suaraDiterima}</strong></span>`;
+        } else {
+            statusDiv.innerHTML = `<span style='color:red;'>❌ Kurang Tepat. Suara dikesan: <strong>${suaraDiterima}</strong> (Sasaran: ${perkataanFasa4}). Cuba lagi!</span>`;
+        }
+    };
+
+    pengecam.onerror = function(event) {
+        if (event.error === 'not-allowed') {
+            statusDiv.innerHTML = "<span style='color:red;'>Kebenaran mikrofon disekat. Sila aktifkan izin mikrofon pada ikon kunci di sebelah URL pelayar.</span>";
+        } else {
+            statusDiv.innerHTML = `<span style='color:red;'>Ralat mikrofon: ${event.error}</span>`;
+        }
+    };
+
+    pengecam.onend = function() {
+        if (btnRekod) {
+            btnRekod.innerText = "🎤 Uji Sebutan Saya";
+            btnRekod.disabled = false;
+        }
+    };
+
+    try {
+        pengecam.start();
+    } catch (e) {
+        console.error("Gagal memulakan pengecam:", e);
+    }
 }
