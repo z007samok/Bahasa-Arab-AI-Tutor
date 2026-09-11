@@ -241,3 +241,87 @@ function kembaliKeMenu() {
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('quiz-container').style.display = 'none';
 }
+
+// --- FASA 4: SEBUTAN & REKOD SUARA ---
+
+let perkataanFasa4 = "";
+
+function pergiKeFasa4() {
+    document.getElementById('section-fasa3').style.display = 'none';
+    document.getElementById('section-fasa4').style.display = 'block';
+    
+    // Ambil perkataan Arab yang telah diekstrak dalam Fasa 2
+    const bekasPerkataan = document.querySelector('#hasil-ai span');
+    perkataanFasa4 = bekasPerkataan ? bekasPerkataan.innerText.trim() : "كَتَبَ";
+    
+    document.getElementById('fasa4-kalimah').innerText = perkataanFasa4;
+    document.getElementById('status-sebutan').innerHTML = "";
+}
+
+function kembaliKeFasa3() {
+    document.getElementById('section-fasa4').style.display = 'none';
+    document.getElementById('section-fasa3').style.display = 'block';
+}
+
+// 1. Fungsi Text-to-Speech (Audio Sebutan)
+function dengarSebutan() {
+    if (!('speechSynthesis' in window)) {
+        alert("Pelayar web anda tidak menyokong fungsi audio.");
+        return;
+    }
+    
+    window.speechSynthesis.cancel(); // Hentikan audio sebelumnya jika ada
+    const sebutan = new SpeechSynthesisUtterance(perkataanFasa4);
+    sebutan.lang = 'ar-SA'; // Dialek Arab Standard
+    sebutan.rate = 0.8;    // Kadar kelajuan sedikit perlahan untuk memudahkan pembelajaran
+    
+    window.speechSynthesis.speak(sebutan);
+}
+
+// 2. Fungsi Speech Recognition (Pengecaman Suara)
+function mulaRakamSebutan() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const statusDiv = document.getElementById('status-sebutan');
+    const btnRekod = document.getElementById('btn-rekod');
+
+    if (!SpeechRecognition) {
+        statusDiv.innerHTML = "<span style='color:red;'>Pelayar web ini tidak menyokong pengecaman suara. Sila gunakan Google Chrome.</span>";
+        return;
+    }
+
+    const pengecam = new SpeechRecognition();
+    pengecam.lang = 'ar-SA';
+    pengecam.interimResults = false;
+
+    pengecam.onstart = function() {
+        btnRekod.innerText = "Mendengar... 🔴";
+        btnRekod.disabled = true;
+        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut perkataan tersebut sekarang...</span>";
+    };
+
+    pengecam.onresult = function(event) {
+        const suaraDiterima = event.results[0][0].transcript.trim();
+        
+        // Buang tanda baris/diacritics untuk perbandingan yang adil
+        const bersihkanTeks = (teks) => teks.replace(/[\u064B-\u065F\u0670]/g, '');
+        const teksAsalBersih = bersihkanTeks(perkataanFasa4);
+        const suaraBersih = bersihkanTeks(suaraDiterima);
+
+        if (suaraBersih.includes(teksAsalBersih) || teksAsalBersih.includes(suaraBersih)) {
+            statusDiv.innerHTML = `<span style='color:green;'>✅ Sebutan Tepat! Anda menyebut: <strong>${suaraDiterima}</strong></span>`;
+        } else {
+            statusDiv.innerHTML = `<span style='color:red;'>❌ Kurang Tepat. Anda menyebut: <strong>${suaraDiterima}</strong>. Cuba lagi!</span>`;
+        }
+    };
+
+    pengecam.onerror = function(event) {
+        statusDiv.innerHTML = `<span style='color:red;'>Ralat pengecaman: ${event.error}</span>`;
+    };
+
+    pengecam.onend = function() {
+        btnRekod.innerText = "🎤 Uji Sebutan Saya";
+        btnRekod.disabled = false;
+    };
+
+    pengecam.start();
+}
