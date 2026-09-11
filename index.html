@@ -66,6 +66,26 @@
             <br>
             <button onclick="pergiKeFasa2()" style="background-color: #95a5a6;">← Balik ke Contoh Al-Quran</button>
             <button id="btn-fasa4" onclick="pergiKeFasa4()" style="display:none; background-color: #e91e63;">Teruskan ke Latihan Sebutan (Fasa 4) →</button>
+
+            <!-- Tambah Seksyen Fasa 4 di bawah section-fasa3 -->
+            <div id="section-fasa4" style="display:none; margin-top: 20px;">
+                <h2>Latihan Sebutan & Audio</h2>
+                <div style="background: #fff; padding: 25px; border-radius: 12px; border: 2px solid #e91e63; text-align: center;">
+                    <p style="color: #666;">Dengar contoh sebutan, kemudian sebutkan kalimah berikut:</p>
+                    
+                    <div id="fasa4-kalimah" style="font-size: 3.5em; font-family: 'Amiri', serif; color: #2c3e50; margin: 15px 0;">--</div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button onclick="dengarSebutan()" style="background-color: #3498db; font-size: 1.1em;">🔊 Dengar Sebutan</button>
+                        <button id="btn-rekod" onclick="mulaRakamSebutan()" style="background-color: #e74c3c; font-size: 1.1em;">🎤 Uji Sebutan Saya</button>
+                    </div>
+            
+                    <div id="status-sebutan" style="margin-top: 15px; font-weight: bold; font-size: 1.1em;"></div>
+                </div>
+                
+                <br>
+                <button onclick="kembaliKeFasa3()" style="background-color: #95a5a6;">← Balik ke Kuiz</button>
+                <button onclick="kembaliKeMenu()" style="background-color: #27ae60;">Selesai & Ke Menu Utama 🏠</button>
         </div>
     
            <div id="maklum-balas" style="margin-top: 15px; font-weight: bold;"></div>
