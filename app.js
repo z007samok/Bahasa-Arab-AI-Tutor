@@ -1,21 +1,21 @@
 // Global Variables
 let API_KEY = localStorage.getItem('gemini_api_key');
 let GEMINI_URL = "";
+let databaseBab = [];
+let babAktif = "";
+let perkataanFasa4 = "كَتَبَ";
 
-// Fungsi yang dijalankan semasa aplikasi mula-mula dibuka
+// 1. PENGURUSAN API & INISIALISASI
 window.onload = function() {
     if (!API_KEY) {
-        // Jika tiada key, tunjuk kotak input
         document.getElementById('setup-api').style.display = 'block';
     } else {
-        // Jika sudah ada, terus aktifkan aplikasi
         aktifkanApp();
     }
 };
 
 function simpanKey() {
     const inputKey = document.getElementById('api-input').value.trim();
-    
     if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
         localStorage.setItem('gemini_api_key', inputKey);
         API_KEY = inputKey;
@@ -26,76 +26,44 @@ function simpanKey() {
     }
 }
 
-function aktifkanApp() {
-    document.getElementById('setup-api').style.display = 'none';
-    // Bina URL menggunakan model 2.5 Flash yang kita sahkan tadi
-    GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-    
-    // Panggil fungsi asal untuk paparkan senarai bab
-    muatTurunData(); 
-}
-
-// Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
 function hapusKey() {
     localStorage.removeItem('gemini_api_key');
     location.reload();
 }
 
-// Fungsi Utama Panggilan AI
-async function panggilAI(promptTeks) {
-    for (let modelName of SENARAI_MODEL) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptTeks }] }] })
-            });
-
-            const data = await response.json();
-            if (response.ok && data.candidates && data.candidates[0]) {
-                return data;
-            }
-        } catch (err) {
-            console.error(`Ralat model ${modelName}:`, err);
-        }
-    }
-    throw new Error("Gagal menyambung ke API. Sila semak API Key.");
-}
-
-// Inisialisasi Aplikasi
-window.onload = function() {
-    if (!API_KEY) {
-        document.getElementById('setup-api').style.display = 'block';
-    } else {
-        aktifkanApp();
-    }
-};
-
-function simpanKey() {
-    const inputKey = document.getElementById('api-input').value.trim();
-    if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
-        localStorage.setItem('gemini_api_key', inputKey);
-        API_KEY = inputKey;
-        alert("Tahniah! API Key disimpan.");
-        aktifkanApp();
-    } else {
-        alert("API Key tidak sah.");
-    }
-}
-
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
+    GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+    muatTurunData();
+}
+
+function muatTurunData() {
     fetch('data.json')
         .then(res => res.json())
         .then(data => {
             databaseBab = data.senarai_bab;
             binaMenuUtama();
         })
-        .catch(err => console.error("Gagal muat data.json:", err));
+        .catch(err => console.error("Gagal memuat turun data.json:", err));
 }
 
-// Paparan Menu
+// 2. FUNGSI PANGGILAN AI TUNGGAL (Guna GEMINI_URL yang disahkan)
+async function panggilAI(promptTeks) {
+    const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptTeks }] }] })
+    });
+
+    const data = await response.json();
+    if (response.ok && data.candidates && data.candidates[0]) {
+        return data;
+    } else {
+        throw new Error(data.error ? data.error.message : "Gagal menerima respons AI.");
+    }
+}
+
+// 3. MENU UTAMA BERKATEGORI
 function binaMenuUtama() {
     const bekas = document.getElementById('senarai-butang');
     bekas.innerHTML = '';
@@ -138,7 +106,7 @@ function paparKandungan(id) {
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 }
 
-// Fasa 2: Contoh Al-Quran & Terjemahan
+// 4. FASA 2: CONTOH AYAT & TERJEMAHAN BM
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'block';
@@ -148,8 +116,8 @@ async function pergiKeFasa2() {
     loading.innerText = "Mencari contoh dalam Al-Quran...";
     hasil.innerHTML = "";
 
-    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA:
-{"ayat": "teks berserta baris", "terjemahan": "maksud dalam BM", "surah": "Nama: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "fungsi tatabahasa"}`;
+    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA tanpa teks pembuka/penutup:
+{"ayat": "teks al-quran berserta baris lengkap", "terjemahan": "terjemahan bahasa melayu", "surah": "Nama Surah: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "penerangan ringkas kedudukan nahu/saraf"}`;
 
     try {
         const data = await panggilAI(prompt);
@@ -173,7 +141,7 @@ async function pergiKeFasa2() {
     }
 }
 
-// Fasa 3: Kuiz
+// 5. FASA 3: KUIZ KEFAHAMAN
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
@@ -186,7 +154,7 @@ async function janaKuiz(teksAnalisis) {
     if (btnFasa4) btnFasa4.style.display = 'none';
     loading.innerText = "AI sedang membina kuiz...";
 
-    const prompt = `Bina 3 soalan objektif dlm BM berdasarkan: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
+    const prompt = `Bina 3 soalan objektif dlm Bahasa Melayu berasaskan contoh ini: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
 
     try {
         const data = await panggilAI(prompt);
@@ -225,7 +193,7 @@ function pergiKeFasa3() {
     janaKuiz(document.getElementById('hasil-ai').innerText);
 }
 
-// Fasa 4: Audio & Sebutan
+// 6. FASA 4: SEBUTAN & SUARA
 function pergiKeFasa4() {
     document.getElementById('section-fasa3').style.display = 'none';
     document.getElementById('section-fasa4').style.display = 'block';
@@ -249,7 +217,7 @@ function kembaliKeMenu() {
 }
 
 function dengarSebutan() {
-    if (!('speechSynthesis' in window)) return alert("Audio tidak disokong.");
+    if (!('speechSynthesis' in window)) return alert("Audio tidak disokong pada pelayar ini.");
     window.speechSynthesis.cancel();
     const sebutan = new SpeechSynthesisUtterance(perkataanFasa4);
     sebutan.lang = 'ar-SA';
@@ -263,7 +231,7 @@ function mulaRakamSebutan() {
     const btnRekod = document.getElementById('btn-rekod');
 
     if (!SpeechRecognition) {
-        statusDiv.innerHTML = "<span style='color:red;'>Gunakan Google Chrome untuk fungsi suara.</span>";
+        statusDiv.innerHTML = "<span style='color:red;'>Pengecaman suara hanya disokong di Google Chrome.</span>";
         return;
     }
 
@@ -272,7 +240,7 @@ function mulaRakamSebutan() {
 
     pengecam.onstart = function() {
         if (btnRekod) btnRekod.innerText = "Mendengar... 🔴";
-        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut perkataan sekarang...</span>";
+        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut sekarang...</span>";
     };
 
     pengecam.onresult = function(event) {
