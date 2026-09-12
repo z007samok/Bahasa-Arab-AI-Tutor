@@ -4,121 +4,141 @@
       "id": "fiil_madhi",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Fi'il Madhi (Kata Kerja Lampau)",
-      "penerangan": "Kata kerja yang menunjukkan perbuatan yang telah berlaku pada masa lalu. Tanda asasnya berbaris fathah pada huruf akhir bagi kata dasar (contoh: كَتَبَ, نَصَرَ)."
+      "penerangan": "Kata kerja yang menunjukkan perbuatan yang telah berlaku pada masa lalu. Tanda asasnya berbaris fathah pada huruf akhir bagi kata dasar (contoh: كَتَبَ, نَصَرَ).",
+      "kaitan": ["fiil_mudhari", "thulathi_mujarrad", "jumlah_filiyyah"]
     },
     {
       "id": "fiil_mudhari",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Fi'il Mudhari' (Kata Kerja Semasa / Akan Datang)",
-      "penerangan": "Kata kerja yang menunjukkan perbuatan yang sedang atau akan berlaku. Dimulai dengan salah satu huruf mudhara'ah (أ، ن، ي، ت) dan pada asalnya berbaris dhammah (contoh: يَكْتُبُ)."
+      "penerangan": "Kata kerja yang menunjukkan perbuatan yang sedang atau akan berlaku. Dimulai dengan salah satu huruf mudhara'ah (أ، ن، ي، ت) dan pada asalnya berbaris dhammah (contoh: يَكْتُبُ).",
+      "kaitan": ["fiil_madhi", "fiil_amr", "jumlah_filiyyah"]
     },
     {
       "id": "fiil_amr",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Fi'il Amr (Kata Kerja Perintah)",
-      "penerangan": "Kata kerja yang digunakan untuk menuntut perbuatan berlaku selepas masa percakapan. Asalnya berbaris sukun pada huruf akhir (contoh: اِقْرَأْ, اُكْتُبْ)."
+      "penerangan": "Kata kerja yang digunakan untuk menuntut perbuatan berlaku selepas masa percakapan. Asalnya berbaris sukun pada huruf akhir (contoh: اِقْرَأْ, اُكْتُبْ).",
+      "kaitan": ["fiil_mudhari", "dhamir", "jumlah_filiyyah"]
     },
     {
       "id": "isim_tanda",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Isim & Tanda-Tanda Isim",
-      "penerangan": "Kalimah yang menunjukkan makna tanpa terikat dengan masa. Tanda utamanya menerima tanwin, alif lam (ال), baris kasrah, atau didahului huruf nida' dan huruf jar."
+      "penerangan": "Kalimah yang menunjukkan makna tanpa terikat dengan masa. Tanda utamanya menerima tanwin, alif lam (ال), baris kasrah, atau didahului huruf nida' dan huruf jar.",
+      "kaitan": ["huruf_jar", "jumlah_ismiyyah", "idhafah"]
     },
     {
       "id": "thulathi_mujarrad",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Wazan Thulathi Mujarrad",
-      "penerangan": "Enam bab timbangan asas kata kerja 3 huruf tanpa huruf tambahan (فَعَلَ - يَفْعُلُ, فَعَلَ - يَفْعِلُ, فَعَلَ - يَفْعَلُ, فَعِلَ - يَفْعَلُ, فَعُلَ - يَفْعُلُ, فَعِلَ - يَفْعِلُ)."
+      "penerangan": "Enam bab timbangan asas kata kerja 3 huruf tanpa huruf tambahan (فَعَلَ - يَفْعُلُ, فَعَلَ - يَفْعِلُ, فَعَلَ - يَفْعَلُ, فَعِلَ - يَفْعَلُ, فَعُلَ - يَفْعُلُ, فَعِلَ - يَفْعِلُ).",
+      "kaitan": ["thulathi_mazid", "masdar", "isim_fail"]
     },
     {
       "id": "thulathi_mazid",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Wazan Thulathi Mazid",
-      "penerangan": "Kata kerja 3 huruf dasar yang ditambah 1, 2, atau 3 huruf imbuhan seperti أَفْعَلَ, فَعَّلَ, فَاعَلَ, تَفَعَّلَ, dan اِسْتَفْعَلَ."
+      "penerangan": "Kata kerja 3 huruf dasar yang ditambah 1, 2, atau 3 huruf imbuhan seperti أَفْعَلَ, فَعَّلَ, فَاعَلَ, تَفَعَّلَ, dan اِسْتَفْعَلَ.",
+      "kaitan": ["thulathi_mujarrad", "masdar", "isim_maful"]
     },
     {
       "id": "isim_fail",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Isim Fa'il (Kata Nama Pembuat)",
-      "penerangan": "Isim terbitan yang menunjukkan pihak yang melakukan perbuatan. Timbangan asas: فَاعِل (contoh: كَاتِب)."
+      "penerangan": "Isim terbitan yang menunjukkan pihak yang melakukan perbuatan. Timbangan asas: فَاعِل (contoh: كَاتِب).",
+      "kaitan": ["thulathi_mujarrad", "isim_maful", "jumlah_filiyyah"]
     },
     {
       "id": "isim_maful",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Isim Maf'ul (Yang Dikenakan Perbuatan)",
-      "penerangan": "Isim terbitan yang menunjukkan sasaran yang dikenakan perbuatan. Timbangan asas: مَفْعُول (contoh: مَكْتُوب)."
+      "penerangan": "Isim terbitan yang menunjukkan sasaran yang dikenakan perbuatan. Timbangan asas: مَفْعُول (contoh: مَكْتُوب).",
+      "kaitan": ["maful_bih", "isim_fail", "thulathi_mazid"]
     },
     {
       "id": "masdar",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Al-Masdar (Kata Nama Tindakan)",
-      "penerangan": "Kata nama yang menunjukkan kejadian sesuatu perbuatan secara abstrak tanpa terikat dengan masa (contoh: كِتَابَة, إِكْرَام)."
+      "penerangan": "Kata nama yang menunjukkan kejadian sesuatu perbuatan secara abstrak tanpa terikat dengan masa (contoh: كِتَابَة, إِكْرَام).",
+      "kaitan": ["thulathi_mujarrad", "thulathi_mazid", "maful_bih"]
     },
     {
       "id": "dhamir",
       "kategori": "Saraf & Morfologi Kata",
       "tajuk": "Dhamir (Kata Ganti Nama)",
-      "penerangan": "Kata ganti nama terbahagi kepada Munfasil (berasingan seperti هُوَ, أَنَا) dan Muttasil (bersambung seperti كَتَبْتُ, كِتَابِي)."
+      "penerangan": "Kata ganti nama terbahagi kepada Munfasil (berasingan seperti هُوَ, أَنَا) dan Muttasil (bersambung seperti كَتَبْتُ, كِتَابِي).",
+      "kaitan": ["jumlah_ismiyyah", "jumlah_filiyyah", "idhafah"]
     },
     {
       "id": "jumlah_ismiyyah",
       "kategori": "Nahu & Struktur Ayat Asas",
       "tajuk": "Jumlah Ismiyyah (Mubtada' & Khabar)",
-      "penerangan": "Ayat lengkap dimulakan dengan Isim. Mengandungi Mubtada' (subjek) dan Khabar (predikat). Kedua-duanya asalnya berhukum Marfu'."
+      "penerangan": "Ayat lengkap dimulakan dengan Isim. Mengandungi Mubtada' (subjek) dan Khabar (predikat). Kedua-duanya asalnya berhukum Marfu'.",
+      "kaitan": ["nawasikh_kana", "nawasikh_inna", "dhamir"]
     },
     {
       "id": "jumlah_filiyyah",
       "kategori": "Nahu & Struktur Ayat Asas",
       "tajuk": "Jumlah Fi'liyyah (Fi'il & Fa'il)",
-      "penerangan": "Ayat lengkap dimulakan dengan Fi'il. Mengandungi Fi'il dan Fa'il (pelaku Marfu'). Memerlukan Maf'ul Bih jika fi'il transitif."
+      "penerangan": "Ayat lengkap dimulakan dengan Fi'il. Mengandungi Fi'il dan Fa'il (pelaku Marfu'). Memerlukan Maf'ul Bih jika fi'il transitif.",
+      "kaitan": ["maful_bih", "fiil_madhi", "hal"]
     },
     {
       "id": "huruf_jar",
       "kategori": "Nahu & Struktur Ayat Asas",
       "tajuk": "Huruf Jar & Isim Majrur",
-      "penerangan": "Huruf penyambung yang menjadikan isim selepasnya majrur (kasrah). Contoh: مِنْ, إِلَى, عَنْ, عَلَى, فِي, البَاء, اللَّام."
+      "penerangan": "Huruf penyambung yang menjadikan isim selepasnya majrur (kasrah). Contoh: مِنْ, إِلَى, عَنْ, عَلَى, فِي, البَاء, اللَّام.",
+      "kaitan": ["isim_tanda", "idhafah", "jumlah_ismiyyah"]
     },
     {
       "id": "maful_bih",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Maf'ul Bih (Objek Penderita)",
-      "penerangan": "Isim yang menjadi sasaran perbuatan. Hukumnya Mansub dengan tanda asas fathah (contoh: قَرَأَ زَيْدٌ الكِتَابَ)."
+      "penerangan": "Isim yang menjadi sasaran perbuatan. Hukumnya Mansub dengan tanda asas fathah (contoh: قَرَأَ زَيْدٌ الكِتَابَ).",
+      "kaitan": ["jumlah_filiyyah", "isim_maful", "naat_manut"]
     },
     {
       "id": "nawasikh_kana",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Kaana & Saudara-saudaranya",
-      "penerangan": "Fi'il naqis yang memasuki Jumlah Ismiyyah. Membiarkan isimnya Marfu' dan menasabkan khabarnya."
+      "penerangan": "Fi'il naqis yang memasuki Jumlah Ismiyyah. Membiarkan isimnya Marfu' dan menasabkan khabarnya.",
+      "kaitan": ["jumlah_ismiyyah", "nawasikh_inna", "maful_bih"]
     },
     {
       "id": "nawasikh_inna",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Inna & Saudara-saudaranya",
-      "penerangan": "Huruf nasab dan taukid yang memasuki Jumlah Ismiyyah. Menasabkan isimnya dan merafa'kan khabarnya."
+      "penerangan": "Huruf nasab dan taukid yang memasuki Jumlah Ismiyyah. Menasabkan isimnya dan merafa'kan khabarnya.",
+      "kaitan": ["jumlah_ismiyyah", "nawasikh_kana", "dhamir"]
     },
     {
       "id": "naat_manut",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Na'at & Man'ut (Sifat & Disifatkan)",
-      "penerangan": "Kata sifat yang mengikut man'ut dalam tanda I'rab, bilangan, jantina, serta status ma'rifah atau nakirah."
+      "penerangan": "Kata sifat yang mengikut man'ut dalam tanda I'rab, bilangan, jantina, serta status ma'rifah atau nakirah.",
+      "kaitan": ["isim_tanda", "maful_bih", "jumlah_ismiyyah"]
     },
     {
       "id": "idhafah",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Idhafah (Mudhaf & Mudhaf Ilaih)",
-      "penerangan": "Gabungan dua isim membentuk sandaran (كِتَابُ اللهِ). Mudhaf bebas daripada tanwin/alif lam, manakala Mudhaf Ilaih sentiasa Majrur."
+      "penerangan": "Gabungan dua isim membentuk sandaran (كِتَابُ اللهِ). Mudhaf bebas daripada tanwin/alif lam, manakala Mudhaf Ilaih sentiasa Majrur.",
+      "kaitan": ["isim_tanda", "huruf_jar", "dhamir"]
     },
     {
       "id": "hal",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Al-Haal (Keadaan Perlakuan)",
-      "penerangan": "Isim nakirah mansub bagi menjelaskan keadaan Fa'il atau Maf'ul Bih ketika perbuatan berlaku (contoh: رَاكِبًا)."
+      "penerangan": "Isim nakirah mansub bagi menjelaskan keadaan Fa'il atau Maf'ul Bih ketika perbuatan berlaku (contoh: رَاكِبًا).",
+      "kaitan": ["jumlah_filiyyah", "maful_bih", "isim_fail"]
     },
     {
       "id": "tamyiz",
       "kategori": "Nahu & Pelengkap Ayat (Mansubat & Tawabi')",
       "tajuk": "Al-Tamyiz (Penjelas Kesamaran)",
-      "penerangan": "Isim nakirah mansub bagi memperjelaskan kesamaran zat, sukatan, timbangan, jarak, atau bilangan nombor."
+      "penerangan": "Isim nakirah mansub bagi memperjelaskan kesamaran zat, sukatan, timbangan, jarak, atau bilangan nombor.",
+      "kaitan": ["hal", "maful_bih", "isim_tanda"]
     }
   ]
 }
