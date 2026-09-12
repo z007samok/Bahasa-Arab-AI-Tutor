@@ -519,3 +519,109 @@ function mulaRakamSebutan() {
     pengecam.onend = () => { if (btnRekod) btnRekod.innerText = "🎤 Uji Sebutan Saya"; };
     pengecam.start();
 }
+// ==========================================
+// 8. FASA 5: LATIHAN MENGARANG & PENYEMAKAN AI
+// ==========================================
+function pergiKeFasa5() {
+    document.getElementById('section-fasa4').style.display = 'none';
+    document.getElementById('section-fasa5').style.display = 'block';
+    document.getElementById('fasa5-topik').innerText = babAktif;
+    document.getElementById('input-karangan').value = "";
+    document.getElementById('hasil-semakan').innerHTML = "";
+}
+
+function kembaliKeFasa4Dari5() {
+    document.getElementById('section-fasa5').style.display = 'none';
+    document.getElementById('section-fasa4').style.display = 'block';
+}
+
+function kembaliKeMenuUtamaDariFasa5() {
+    // Rekod bab sebagai selesai
+    const bab = databaseBab.find(b => b.tajuk === babAktif);
+    if (bab) {
+        let babSelesai = JSON.parse(localStorage.getItem('bab_selesai_list') || '[]');
+        if (!babSelesai.includes(bab.id)) {
+            babSelesai.push(bab.id);
+            localStorage.setItem('bab_selesai_list', JSON.stringify(babSelesai));
+        }
+    }
+
+    document.getElementById('section-fasa5').style.display = 'none';
+    document.getElementById('section-menu').style.display = 'block';
+    binaMenuUtama();
+}
+
+async function semakKarangan() {
+    const inputAyat = document.getElementById('input-karangan').value.trim();
+    if (!inputAyat) {
+        alert("Sila taip ayat bahasa Arab anda terlebih dahulu.");
+        return;
+    }
+
+    const loading = document.getElementById('loading-fasa5');
+    const hasil = document.getElementById('hasil-semakan');
+    
+    loading.innerText = "AI sedang menyemak struktur Nahu dan Saraf ayat anda...";
+    hasil.innerHTML = "";
+
+    const prompt = `Anda adalah seorang guru bahasa Arab. Pelajar sedang belajar bab "${babAktif}". 
+    Pelajar telah membina ayat ini: "${inputAyat}".
+    Semak ketepatan struktur ayat ini, terutamanya sama ada ia menepati hukum nahu bagi bab "${babAktif}".
+    
+    Sila balas dalam format JSON SAHAJA seperti struktur ini:
+    {
+        "status": "Tepat / Ada Kesilapan",
+        "ayat_pembetulan": "Tulis semula ayat dengan baris (tashkeel) yang betul 100%. Jika sudah betul, kekalkan.",
+        "ulasan_guru": "Penerangan ringkas dalam Bahasa Melayu kenapa ia betul atau salah dari sudut nahu.",
+        "skor": 100
+    }`;
+
+    try {
+        // Matikan butang sementara AI berfikir
+        const butangSemak = event.target;
+        butangSemak.disabled = true;
+
+        const response = await fetch(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        butangSemak.disabled = false;
+
+        if (response.status === 429) throw new Error("Had API tercapai. Tunggu sebentar.");
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error("Ralat pelayan AI.");
+
+        const json = ekstrakJSON(data.candidates[0].content.parts[0].text);
+        
+        // Render kad maklum balas UI
+        const warnaStatus = json.skor > 50 ? "#27ae60" : "#e74c3c";
+        const ikonStatus = json.skor > 50 ? "✅" : "💡";
+
+        hasil.innerHTML = `
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid ${warnaStatus};">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: ${warnaStatus};">${ikonStatus} Status: ${json.status}</h3>
+                    <div style="background: ${warnaStatus}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">Skor: ${json.skor}/100</div>
+                </div>
+                
+                <small style="color: #7f8c8d; font-weight: bold;">AYAT SEBENAR (DENGAN BARIS):</small>
+                <div style="font-size: 2em; direction: rtl; font-family: 'Amiri', serif; color: #2c3e50; margin: 10px 0;">
+                    ${json.ayat_pembetulan}
+                </div>
+                
+                <small style="color: #7f8c8d; font-weight: bold; margin-top: 15px; display: block;">ULASAN GURU AI:</small>
+                <p style="color: #34495e; font-size: 1.05em; line-height: 1.5; margin-top: 5px;">
+                    ${json.ulasan_guru}
+                </p>
+            </div>
+        `;
+        loading.innerText = "";
+
+    } catch (err) {
+        loading.innerText = "Gagal menyemak: " + err.message;
+        document.querySelector('button[onclick="semakKarangan()"]').disabled = false;
+    }
+}
