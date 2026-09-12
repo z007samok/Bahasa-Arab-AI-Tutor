@@ -93,18 +93,15 @@ function paparKandungan(id) {
 
 // FASA 2: Contoh Al-Quran + Terjemahan BM
 async function pergiKeFasa2() {
-    // Sembunyikan semua seksyen lain
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'none';
-    document.getElementById('section-fasa4').style.display = 'none'; // <-- Tambah/pastikan baris ini ada
-    
-    // Tunjukkan seksyen Fasa 2
+    document.getElementById('section-fasa4').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'block';
 
     const loading = document.getElementById('loading-ai');
     const hasil = document.getElementById('hasil-ai');
     
-    // Elakkan menjana semula jika data ayat sudah sedia ada
+    // Semakan untuk mengelakkan panggilan API berulang
     if (hasil.innerHTML.trim() !== "") {
         return;
     }
