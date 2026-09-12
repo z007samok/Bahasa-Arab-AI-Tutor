@@ -15,23 +15,27 @@
     </style>
 </head>
 <body>
+    <!-- SETUP API KEY -->
     <div id="setup-api" style="display:none; background: #f8f9fa; padding: 20px; border-bottom: 2px solid #dee2e6; text-align: center;">
-    <h3>🔐 Konfigurasi AI Tutor</h3>
-    <p>Masukkan API Key Gemini anda untuk mengaktifkan fungsi AI Al-Quran & Kuiz.</p>
-    <input type="password" id="api-input" placeholder="AIzaSy..." style="width: 350px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-    <button onclick="simpanKey()" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Simpan & Aktifkan</button>
-    <p style="font-size: 0.8em; color: #6c757d; margin-top: 10px;">
-        Nota: Key anda disimpan secara selamat dalam peranti anda (Local Storage) dan tidak akan dihantar ke GitHub.
-    </p>
-</div>
+        <h3>🔐 Konfigurasi AI Tutor</h3>
+        <p>Masukkan API Key Gemini anda untuk mengaktifkan fungsi AI Al-Quran & Kuiz.</p>
+        <input type="password" id="api-input" placeholder="AIzaSy..." style="width: 350px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <button onclick="simpanKey()" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Simpan & Aktifkan</button>
+        <p style="font-size: 0.8em; color: #6c757d; margin-top: 10px;">
+            Nota: Key anda disimpan secara selamat dalam peranti anda (Local Storage) dan tidak akan dihantar ke GitHub.
+        </p>
+    </div>
+
     <div class="container">
         <h1>Modul Arab Interaktif</h1>
         
+        <!-- FASA UTAMA: MENU PILIHAN BAB -->
         <div id="section-menu">
             <h3>Sila Pilih Bab:</h3>
             <div id="senarai-butang"></div>
         </div>
 
+        <!-- FASA 1: PENERANGAN KANDUNGAN -->
         <div id="section-kandungan" style="display:none;">
             <h2 id="tajuk-aktif"></h2>
             <div id="teks-penerangan"></div>
@@ -46,6 +50,7 @@
             <button onclick="pergiKeFasa2()" style="background-color: #2ecc71;">Teruskan ke Contoh Al-Quran →</button>
         </div>
         
+        <!-- FASA 2: CONTOH DARI AL-QURAN -->
         <div id="section-fasa2" style="display:none;">
             <h2>Contoh Dari Al-Quran</h2>
             <div id="loading-ai" style="color: blue; font-style: italic;"></div>
@@ -53,10 +58,10 @@
             <br>
             <button onclick="paparKandungan(databaseBab.find(b => b.tajuk === babAktif).id)" style="background-color: #95a5a6;">← Balik ke Penerangan</button>
             <button onclick="pergiKeFasa3()" style="background-color: #9b59b6;">Uji Kefahaman (Kuiz) →</button>
-         </div>
+        </div>
 
-         <!-- FASA 3: KUIZ -->
-         <div id="section-fasa3" style="display:none;">
+        <!-- FASA 3: KUIZ -->
+        <div id="section-fasa3" style="display:none;">
             <h2>Uji Kefahaman (Kuiz)</h2>
             <div id="loading-kuiz" style="color: purple; font-style: italic;"></div>
             
@@ -67,10 +72,10 @@
             <br>
             <button onclick="pergiKeFasa2()" style="background-color: #95a5a6;">← Balik ke Contoh Al-Quran</button>
             <button id="btn-fasa4" onclick="pergiKeFasa4()" style="display:none; background-color: #e91e63;">Teruskan ke Latihan Sebutan (Fasa 4) →</button>
-         </div>
+        </div>
 
-          <!-- FASA 4: SEBUTAN & AUDIO -->
-          <div id="section-fasa4" style="display:none;">
+        <!-- FASA 4: SEBUTAN & AUDIO -->
+        <div id="section-fasa4" style="display:none;">
             <h2>Latihan Sebutan & Audio</h2>
             <div style="background: #fff; padding: 25px; border-radius: 12px; border: 2px solid #e91e63; text-align: center; margin-top: 15px;">
                 <p style="color: #666;">Dengar contoh sebutan, kemudian sebutkan perkataan di bawah:</p>
@@ -88,16 +93,9 @@
             <br>
             <button onclick="kembaliKeFasa3()" style="background-color: #95a5a6;">← Balik ke Kuiz</button>
             <button onclick="kembaliKeMenuUtamaDariFasa4()" style="background-color: #27ae60;">Selesai & Ke Menu Utama 🏠</button>
-          </div>
-    
-           <div id="maklum-balas" style="margin-top: 15px; font-weight: bold;"></div>
+        </div>
+    </div>
 
-           <div id="quiz-container" style="display:none; margin-top: 20px; padding: 20px; border: 2px dashed #28a745; background: #f0fff4; border-radius: 10px;">
-           <h3>📝 Uji Kefahaman Anda</h3>
-           <div id="quiz-content"></div>
-           <div id="quiz-feedback" style="margin-top: 15px; font-weight: bold;"></div>
-           </div>
-        
     <script src="app.js"></script>
 </body>
 </html>
