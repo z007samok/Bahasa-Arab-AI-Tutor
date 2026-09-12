@@ -115,51 +115,52 @@ function paparKandungan(id) {
     });
 }
 
-// ---------------- FASA 2: LOGIK AI GEMINI ----------------
-
+// FASA 2: CONTOH AL-QURAN
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'block';
-    document.getElementById('loading-ai').innerText = "Sedang mencari contoh dari Al-Quran...";
-    document.getElementById('hasil-ai').innerHTML = "";
+    const loading = document.getElementById('loading-ai');
+    const hasil = document.getElementById('hasil-ai');
     
-    // Sembunyikan bekas kuiz lama jika ada
-    document.getElementById('quiz-container').style.display = 'none';
+    loading.innerText = "Mencari contoh dalam Al-Quran...";
+    hasil.innerHTML = "";
 
-    const prompt = `Berikan satu ayat Al-Quran pendek yang mengandungi contoh ${babAktif}. 
-    Berikan respon dalam format JSON sahaja: 
-    {"ayat": "teks ayat", "surah": "nama surah", "word": "perkataan berkaitan", "root": "kata dasar", "wazan": "pola", "function": "fungsi nahu"}`;
+    // Tambah permintaan terjemahan Bahasa Melayu dalam prompt
+    const prompt = `Berikan satu keratan ayat Al-Quran pendek yang mengandungi contoh bagi topik: "${babAktif}". 
+Respon HANYA dalam format JSON tulen tanpa penerangan lain:
+{
+  "ayat": "teks ayat al-quran berserta baris lengkap",
+  "terjemahan": "terjemahan ayat dalam Bahasa Melayu",
+  "surah": "Nama Surah: No Ayat",
+  "word": "perkataan sasaran",
+  "root": "kata dasar perkataan",
+  "wazan": "wazan atau timbangan",
+  "function": "penerangan ringkas kedudukan/fungsi tatabahasa"
+}`;
 
     try {
-        const response = await fetch(GEMINI_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+        const data = await panggilAI(prompt);
+        const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+        const json = JSON.parse(text);
 
-        const data = await response.json();
-        const textResponse = data.candidates[0].content.parts[0].text;
-        const cleanJson = JSON.parse(textResponse.replace(/```json|```/g, ''));
-
-        document.getElementById('loading-ai').innerText = "";
-        
-        // Simpan analisis teks untuk kegunaan kuiz
-        const analisisTeks = `Ayat: ${cleanJson.ayat}. Perkataan: ${cleanJson.word}. Fungsi: ${cleanJson.function}`;
-        
-        document.getElementById('hasil-ai').innerHTML = `
-            <div style="font-size: 1.8em; direction: rtl; margin-bottom: 15px; font-family: 'Amiri', serif;">${cleanJson.ayat}</div>
-            <p><strong>Surah:</strong> ${cleanJson.surah}</p>
-            <hr>
-            <p><strong>Perkataan:</strong> <span style="color: #e67e22; font-size: 1.2em;">${cleanJson.word}</span></p>
-            <p><strong>Kata Dasar:</strong> ${cleanJson.root}</p>
-            <p><strong>Wazan:</strong> ${cleanJson.wazan}</p>
-            <p><strong>Fungsi:</strong> ${cleanJson.function}</p>
-            <button onclick='janaKuiz("${analisisTeks.replace(/"/g, "'")}")' style="margin-top:15px; background-color: #27ae60;">Jana Kuiz Kefahaman</button>
+        loading.innerText = "";
+        hasil.innerHTML = `
+            <div style="font-size: 2.2em; direction: rtl; margin-bottom: 12px; font-family: 'Amiri', serif; line-height: 1.6;">
+                ${json.ayat}
+            </div>
+            <p style="color: #2c3e50; font-size: 1.05em; margin-bottom: 10px;">
+                <strong>Maksud:</strong> <em>"${json.terjemahan}"</em>
+            </p>
+            <p><strong>Surah:</strong> ${json.surah}</p>
+            <hr style="border: 0; border-top: 1px solid #e0d0b0; margin: 15px 0;">
+            <p><strong>Perkataan:</strong> <span style="color: #d35400; font-weight: bold; font-size: 1.3em;">${json.word}</span></p>
+            <p><strong>Kata Dasar:</strong> ${json.root}</p>
+            <p><strong>Wazan:</strong> ${json.wazan}</p>
+            <p><strong>Fungsi:</strong> ${json.function}</p>
         `;
-        
-    } catch (error) {
-        document.getElementById('loading-ai').innerText = "Ralat memanggil AI. Sila semak API Key.";
-        console.error(error);
+    } catch (err) {
+        console.error("Ralat Fasa 2:", err);
+        loading.innerText = "Ralat: " + err.message;
     }
 }
 
