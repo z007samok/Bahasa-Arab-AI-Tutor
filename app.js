@@ -79,13 +79,32 @@ function binaMenuUtama() {
 function paparKandungan(id) {
     const bab = databaseBab.find(b => b.id === id);
     babAktif = bab.tajuk;
+    
     document.getElementById('section-menu').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'none';
     document.getElementById('section-fasa4').style.display = 'none';
     document.getElementById('section-kandungan').style.display = 'block';
+    
     document.getElementById('tajuk-aktif').innerText = bab.tajuk;
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
+
+    // Menjana butang topik berkaitan daripada kategori yang sama secara automatik
+    const bekasKaitan = document.getElementById('butang-kaitan');
+    if (bekasKaitan) {
+        bekasKaitan.innerHTML = '';
+        const babSekategori = databaseBab
+            .filter(b => b.kategori === bab.kategori && b.id !== bab.id)
+            .slice(0, 3); // Ambil sehingga 3 topik berkaitan terdekat
+
+        babSekategori.forEach(kaitan => {
+            const btnKaitan = document.createElement('button');
+            btnKaitan.innerText = kaitan.tajuk;
+            btnKaitan.style.cssText = "padding: 6px 12px; font-size: 0.85em; background-color: #6c757d; color: white; border-radius: 6px; margin: 3px;";
+            btnKaitan.onclick = () => paparKandungan(kaitan.id);
+            bekasKaitan.appendChild(btnKaitan);
+        });
+    }
 }
 
 // Fungsi Bantuan untuk Ekstrak JSON daripada Respons Gemini
