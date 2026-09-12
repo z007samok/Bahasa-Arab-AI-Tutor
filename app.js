@@ -88,6 +88,13 @@ function paparKandungan(id) {
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 }
 
+// Fungsi Bantuan untuk Ekstrak JSON daripada Respons Gemini
+function ekstrakJSON(teksRaw) {
+    const match = teksRaw.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    if (!match) throw new Error("Format data AI tidak sah.");
+    return JSON.parse(match[0]);
+}
+
 // FASA 2: Contoh Al-Quran + Terjemahan BM + Cache Elak Had 429
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
@@ -137,8 +144,12 @@ async function pergiKeFasa2() {
         }
 
         const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-        const json = JSON.parse(text);
+        if (!response.ok) {
+            throw new Error(data.error ? data.error.message : "Ralat sambungan API.");
+        }
+
+        const rawText = data.candidates[0].content.parts[0].text;
+        const json = ekstrakJSON(rawText);
 
         localStorage.setItem(kunciMemori, JSON.stringify(json));
         perkataanFasa4 = json.word || "كَتَبَ";
@@ -185,8 +196,12 @@ async function janaKuiz(teksAnalisis) {
         }
 
         const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-        const soalanArray = JSON.parse(text);
+        if (!response.ok) {
+            throw new Error(data.error ? data.error.message : "Ralat sambungan API.");
+        }
+
+        const rawText = data.candidates[0].content.parts[0].text;
+        const soalanArray = ekstrakJSON(rawText);
 
         loading.innerText = "";
         quizContainer.style.display = 'block';
@@ -194,11 +209,28 @@ async function janaKuiz(teksAnalisis) {
         
         quizContent.innerHTML = "";
         soalanArray.forEach((s, i) => {
-            let html = `<p><strong>${i+1}. ${s.soalan}</strong></p>`;
+            const kotakSoalan = document.createElement('div');
+            kotakSoalan.id = `q-${i}`;
+            kotakSoalan.style.marginBottom = "20px";
+
+            const tajukSoalan = document.createElement('p');
+            tajukSoalan.innerHTML = `<strong>${i + 1}. ${s.soalan}</strong>`;
+            kotakSoalan.appendChild(tajukSoalan);
+
             s.pilihan.forEach((p, pi) => {
-                html += `<button onclick="semakJawapan(${i}, ${pi}, ${s.jawapan}, '${s.penjelasan.replace(/'/g, "\\'")}', this)" style="display:block; width:100%; text-align:center; background:white; color:black; border:1px solid #ccc; margin:10px 0; padding:15px; font-size:1.8em; border-radius:8px; cursor:pointer;">${p}</button>`;
+                const btnJawapan = document.createElement('button');
+                btnJawapan.innerText = p;
+                btnJawapan.style.cssText = "display:block; width:100%; text-align:center; background:white; color:black; border:1px solid #ccc; margin:10px 0; padding:15px; font-size:1.8em; border-radius:8px; cursor:pointer;";
+                btnJawapan.onclick = () => semakJawapan(i, pi, s.jawapan, s.penjelasan, btnJawapan);
+                kotakSoalan.appendChild(btnJawapan);
             });
-            quizContent.innerHTML += `<div id="q-${i}" style="margin-bottom:20px;">${html}<div id="fb-${i}"></div></div>`;
+
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.id = `fb-${i}`;
+            feedbackDiv.style.marginTop = "8px";
+            kotakSoalan.appendChild(feedbackDiv);
+
+            quizContent.appendChild(kotakSoalan);
         });
     } catch (err) {
         loading.innerText = "Gagal menjana kuiz: " + err.message;
