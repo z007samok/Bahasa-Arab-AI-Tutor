@@ -78,6 +78,8 @@ function binaMenuUtama() {
 
 function paparKandungan(id) {
     const bab = databaseBab.find(b => b.id === id);
+    if (!bab) return;
+    
     babAktif = bab.tajuk;
     
     document.getElementById('section-menu').style.display = 'none';
@@ -89,20 +91,21 @@ function paparKandungan(id) {
     document.getElementById('tajuk-aktif').innerText = bab.tajuk;
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 
-    // Menjana butang topik berkaitan daripada kategori yang sama secara automatik
+    // Paparkan Topik Berkaitan Berdasarkan Pemetaan Eksplisit
     const bekasKaitan = document.getElementById('butang-kaitan');
     if (bekasKaitan) {
         bekasKaitan.innerHTML = '';
-        const babSekategori = databaseBab
-            .filter(b => b.kategori === bab.kategori && b.id !== bab.id)
-            .slice(0, 3); // Ambil sehingga 3 topik berkaitan terdekat
-
-        babSekategori.forEach(kaitan => {
-            const btnKaitan = document.createElement('button');
-            btnKaitan.innerText = kaitan.tajuk;
-            btnKaitan.style.cssText = "padding: 6px 12px; font-size: 0.85em; background-color: #6c757d; color: white; border-radius: 6px; margin: 3px;";
-            btnKaitan.onclick = () => paparKandungan(kaitan.id);
-            bekasKaitan.appendChild(btnKaitan);
+        const senaraiIdKaitan = bab.kaitan || [];
+        
+        senaraiIdKaitan.forEach(idKaitan => {
+            const babKaitan = databaseBab.find(b => b.id === idKaitan);
+            if (babKaitan) {
+                const btn = document.createElement('button');
+                btn.innerText = babKaitan.tajuk;
+                btn.style.cssText = "padding: 8px 14px; font-size: 0.85em; background-color: #4b6584; color: white; border-radius: 6px; margin: 4px; border: none; cursor: pointer;";
+                btn.onclick = () => paparKandungan(babKaitan.id);
+                bekasKaitan.appendChild(btn);
+            }
         });
     }
 }
