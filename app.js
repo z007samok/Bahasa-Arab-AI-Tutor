@@ -192,6 +192,12 @@ async function pergiKeFasa2() {
 }
 
 // FASA 3: Kuiz
+// Tambah pemboleh ubah penjejak skor di bahagian atas (berhampiran let perkataanFasa4)
+let skorKuizSemasa = 0;
+let jumlahSoalanDijawab = 0;
+let kuizSemasaCache = [];
+
+// FASA 3: Kuiz (Dengan Caching Pintar & Pengiraan Skor)
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
@@ -202,6 +208,22 @@ async function janaKuiz(teksAnalisis) {
     document.getElementById('section-fasa3').style.display = 'block';
     quizContainer.style.display = 'none';
     if (btnFasa4) btnFasa4.style.display = 'none';
+
+    // Reset rekod skor
+    skorKuizSemasa = 0;
+    jumlahSoalanDijawab = 0;
+
+    // 1. Semak jika soalan kuiz bagi bab ini sudah ada dalam Cache
+    const kunciCacheKuiz = 'quiz_cache_' + babAktif;
+    const dataKuizTersimpan = localStorage.getItem(kunciCacheKuiz);
+
+    if (dataKuizTersimpan) {
+        kuizSemasaCache = JSON.parse(dataKuizTersimpan);
+        paparSoalanKuiz(kuizSemasaCache);
+        return;
+    }
+
+    // 2. Jika tiada, minta Gemini bina soalan
     loading.innerText = "AI sedang membina kuiz...";
 
     const prompt = `Bina 3 soalan objektif dlm BM berdasarkan: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
@@ -225,55 +247,131 @@ async function janaKuiz(teksAnalisis) {
         const rawText = data.candidates[0].content.parts[0].text;
         const soalanArray = ekstrakJSON(rawText);
 
-        loading.innerText = "";
-        quizContainer.style.display = 'block';
-        if (btnFasa4) btnFasa4.style.display = 'inline-block';
-        
-        quizContent.innerHTML = "";
-        soalanArray.forEach((s, i) => {
-            const kotakSoalan = document.createElement('div');
-            kotakSoalan.id = `q-${i}`;
-            kotakSoalan.style.marginBottom = "20px";
+        // Simpan ke cache
+        localStorage.setItem(kunciCacheKuiz, JSON.stringify(soalanArray));
+        kuizSemasaCache = soalanArray;
 
-            const tajukSoalan = document.createElement('p');
-            tajukSoalan.innerHTML = `<strong>${i + 1}. ${s.soalan}</strong>`;
-            kotakSoalan.appendChild(tajukSoalan);
-
-            s.pilihan.forEach((p, pi) => {
-                const btnJawapan = document.createElement('button');
-                btnJawapan.innerText = p;
-                btnJawapan.style.cssText = "display:block; width:100%; text-align:center; background:white; color:black; border:1px solid #ccc; margin:10px 0; padding:15px; font-size:1.8em; border-radius:8px; cursor:pointer;";
-                btnJawapan.onclick = () => semakJawapan(i, pi, s.jawapan, s.penjelasan, btnJawapan);
-                kotakSoalan.appendChild(btnJawapan);
-            });
-
-            const feedbackDiv = document.createElement('div');
-            feedbackDiv.id = `fb-${i}`;
-            feedbackDiv.style.marginTop = "8px";
-            kotakSoalan.appendChild(feedbackDiv);
-
-            quizContent.appendChild(kotakSoalan);
-        });
+        paparSoalanKuiz(soalanArray);
     } catch (err) {
         loading.innerText = "Gagal menjana kuiz: " + err.message;
     }
 }
 
-function semakJawapan(si, pi, bi, pen, btn) {
-    const fb = document.getElementById(`fb-${si}`);
-    if (pi === bi) {
-        btn.style.backgroundColor = "#d4edda";
-        fb.innerHTML = "✅ " + pen;
+// Fungsi Membina UI Kuiz
+function paparSoalanKuiz(soalanArray) {
+    const quizContainer = document.getElementById('quiz-container');
+    const quizContent = document.getElementById('quiz-content');
+    const loading = document.getElementById('loading-kuiz');
+    
+    loading.innerText = "";
+    quizContainer.style.display = 'block';
+    quizContent.innerHTML = "";
+
+    soalanArray.forEach((s, i) => {
+        const kotakSoalan = document.createElement('div');
+        kotakSoalan.id = `q-${i}`;
+        kotakSoalan.style.cssText = "margin-bottom: 25px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #e0e0e0;";
+
+        const tajukSoalan = document.createElement('p');
+        tajukSoalan.innerHTML = `<strong>Soalan ${i + 1}:</strong> ${s.soalan}`;
+        tajukSoalan.style.fontSize = "1.1em";
+        kotakSoalan.appendChild(tajukSoalan);
+
+        const bekasPilihan = document.createElement('div');
+        bekasPilihan.id = `pilihan-box-${i}`;
+
+        s.pilihan.forEach((p, pi) => {
+            const btnJawapan = document.createElement('button');
+            btnJawapan.innerText = p;
+            btnJawapan.style.cssText = "display: block; width: 100%; text-align: left; background: #f8f9fa; color: #333; border: 1px solid #ced4da; margin: 8px 0; padding: 12px 16px; font-size: 1.1em; border-radius: 6px; cursor: pointer; transition: 0.2s;";
+            
+            btnJawapan.onmouseover = () => { if (!btnJawapan.disabled) btnJawapan.style.backgroundColor = "#e9ecef"; };
+            btnJawapan.onmouseout = () => { if (!btnJawapan.disabled && !btnJawapan.style.backgroundColor.includes("rgb")) btnJawapan.style.backgroundColor = "#f8f9fa"; };
+
+            btnJawapan.onclick = () => semakJawapan(i, pi, s.jawapan, s.penjelasan, btnJawapan);
+            bekasPilihan.appendChild(btnJawapan);
+        });
+
+        kotakSoalan.appendChild(bekasPilihan);
+
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.id = `fb-${i}`;
+        feedbackDiv.style.cssText = "margin-top: 10px; font-weight: 500;";
+        kotakSoalan.appendChild(feedbackDiv);
+
+        quizContent.appendChild(kotakSoalan);
+    });
+
+    // Bekas Maklum Balas Skor Akhir
+    const kotakSkor = document.createElement('div');
+    kotakSkor.id = "kotak-skor-akhir";
+    kotakSkor.style.cssText = "display: none; text-align: center; padding: 15px; border-radius: 8px; margin-top: 20px;";
+    quizContent.appendChild(kotakSkor);
+}
+
+// Semak Jawapan & Kira Markah
+function semakJawapan(soalanIndex, jawapanDipilih, jawapanBetul, penjelasan, butangDitekan) {
+    const bekasPilihan = document.getElementById(`pilihan-box-${soalanIndex}`);
+    const semuaButang = bekasPilihan.querySelectorAll('button');
+    const fb = document.getElementById(`fb-${soalanIndex}`);
+
+    // Kunci semua pilihan jawapan bagi soalan ini
+    semuaButang.forEach(b => b.disabled = true);
+
+    if (jawapanDipilih === jawapanBetul) {
+        butangDitekan.style.backgroundColor = "#d4edda";
+        butangDitekan.style.borderColor = "#28a745";
+        fb.innerHTML = `<span style="color: #28a745;">✅ Tepat!</span> ${penjelasan}`;
+        skorKuizSemasa++;
     } else {
-        btn.style.backgroundColor = "#f8d7da";
-        fb.innerHTML = "❌ Salah.";
+        butangDitekan.style.backgroundColor = "#f8d7da";
+        butangDitekan.style.borderColor = "#dc3545";
+        semuaButang[jawapanBetul].style.backgroundColor = "#d4edda"; // Tunjuk jawapan sebenar
+        fb.innerHTML = `<span style="color: #dc3545;">❌ Kurang Tepat.</span> ${penjelasan}`;
     }
+
+    jumlahSoalanDijawab++;
+
+    // Jika semua 3 soalan telah dijawab, paparkan rumusan skor
+    if (jumlahSoalanDijawab === 3) {
+        paparkanKeputusanKuiz();
+    }
+}
+
+function paparkanKeputusanKuiz() {
+    const kotakSkor = document.getElementById('kotak-skor-akhir');
+    const btnFasa4 = document.getElementById('btn-fasa4');
+    kotakSkor.style.display = "block";
+
+    if (skorKuizSemasa >= 2) {
+        kotakSkor.style.backgroundColor = "#e8f8f5";
+        kotakSkor.style.border = "2px solid #2ecc71";
+        kotakSkor.innerHTML = `
+            <h3 style="color: #27ae60; margin-bottom: 5px;">🎉 Tahniah! Skor: ${skorKuizSemasa} / 3</h3>
+            <p style="color: #2c3e50; margin: 0;">Kefahaman anda mantap. Sila teruskan ke latihan sebutan.</p>
+        `;
+        if (btnFasa4) btnFasa4.style.display = 'inline-block';
+    } else {
+        kotakSkor.style.backgroundColor = "#fef9e7";
+        kotakSkor.style.border = "2px solid #f39c12";
+        kotakSkor.innerHTML = `
+            <h3 style="color: #d35400; margin-bottom: 5px;">Skor: ${skorKuizSemasa} / 3</h3>
+            <p style="color: #7f8c8d; margin-bottom: 10px;">Cuba ulang semula untuk memantapkan lagi kefahaman tatabahasa.</p>
+            <button onclick="ulangKuiz()" style="padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 6px; cursor: pointer;">🔄 Ulang Semula Kuiz</button>
+        `;
+        if (btnFasa4) btnFasa4.style.display = 'none';
+    }
+}
+
+function ulangKuiz() {
+    skorKuizSemasa = 0;
+    jumlahSoalanDijawab = 0;
+    paparSoalanKuiz(kuizSemasaCache);
 }
 
 function pergiKeFasa3() {
     janaKuiz(document.getElementById('hasil-ai').innerText);
 }
-
 // FASA 4: Audio & Sebutan
 function pergiKeFasa4() {
     document.getElementById('section-fasa3').style.display = 'none';
