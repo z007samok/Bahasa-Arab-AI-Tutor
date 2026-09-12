@@ -5,7 +5,6 @@ let databaseBab = [];
 let babAktif = "";
 let perkataanFasa4 = "كَتَبَ";
 
-// Fungsi yang dijalankan semasa aplikasi mula-mula dibuka
 window.onload = function() {
     if (!API_KEY) {
         document.getElementById('setup-api').style.display = 'block';
@@ -16,7 +15,6 @@ window.onload = function() {
 
 function simpanKey() {
     const inputKey = document.getElementById('api-input').value.trim();
-    
     if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
         localStorage.setItem('gemini_api_key', inputKey);
         API_KEY = inputKey;
@@ -48,7 +46,6 @@ function muatTurunData() {
         .catch(err => console.error("Gagal muat data.json:", err));
 }
 
-// Paparan Menu Berkategori
 function binaMenuUtama() {
     const bekas = document.getElementById('senarai-butang');
     bekas.innerHTML = '';
@@ -83,15 +80,15 @@ function paparKandungan(id) {
     const bab = databaseBab.find(b => b.id === id);
     babAktif = bab.tajuk;
     document.getElementById('section-menu').style.display = 'none';
-    document.getElementById('section-kandungan').style.display = 'block';
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'none';
     document.getElementById('section-fasa4').style.display = 'none';
+    document.getElementById('section-kandungan').style.display = 'block';
     document.getElementById('tajuk-aktif').innerText = bab.tajuk;
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 }
 
-// FASA 2: Contoh Al-Quran + Terjemahan BM
+// FASA 2: Contoh Al-Quran + Terjemahan BM + Cache Elak Had 429
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'none';
@@ -101,8 +98,24 @@ async function pergiKeFasa2() {
     const loading = document.getElementById('loading-ai');
     const hasil = document.getElementById('hasil-ai');
     
-    // Semakan untuk mengelakkan panggilan API berulang
-    if (hasil.innerHTML.trim() !== "") {
+    // Semak simpanan memori (Cache)
+    const kunciMemori = 'quran_cache_' + babAktif;
+    const dataLama = localStorage.getItem(kunciMemori);
+
+    if (dataLama) {
+        const json = JSON.parse(dataLama);
+        perkataanFasa4 = json.word || "كَتَبَ";
+        loading.innerText = "";
+        hasil.innerHTML = `
+            <div style="font-size: 2.2em; direction: rtl; margin-bottom: 12px; font-family: 'Amiri', serif; line-height: 1.6;">${json.ayat}</div>
+            <p style="color: #2c3e50; font-size: 1.05em; margin-bottom: 10px;"><strong>Maksud:</strong> <em>"${json.terjemahan}"</em></p>
+            <p><strong>Surah:</strong> ${json.surah}</p>
+            <hr style="border: 0; border-top: 1px solid #e0d0b0; margin: 15px 0;">
+            <p><strong>Perkataan:</strong> <span style="color: #d35400; font-weight: bold; font-size: 1.3em;">${json.word}</span></p>
+            <p><strong>Kata Dasar:</strong> ${json.root}</p>
+            <p><strong>Wazan:</strong> ${json.wazan}</p>
+            <p><strong>Fungsi:</strong> ${json.function}</p>
+        `;
         return;
     }
 
@@ -119,10 +132,15 @@ async function pergiKeFasa2() {
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
         
+        if (response.status === 429) {
+            throw new Error("Had seminit (15 RPM) tercapai. Sila tunggu 60 saat sebelum cuba lagi.");
+        }
+
         const data = await response.json();
         const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
         const json = JSON.parse(text);
 
+        localStorage.setItem(kunciMemori, JSON.stringify(json));
         perkataanFasa4 = json.word || "كَتَبَ";
         loading.innerText = "";
         hasil.innerHTML = `
@@ -140,7 +158,7 @@ async function pergiKeFasa2() {
     }
 }
 
-// FASA 3: Kuiz (Guna fetch GEMINI_URL terus)
+// FASA 3: Kuiz
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
@@ -161,6 +179,10 @@ async function janaKuiz(teksAnalisis) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
+
+        if (response.status === 429) {
+            throw new Error("Had seminit (15 RPM) tercapai. Sila tunggu 60 saat.");
+        }
 
         const data = await response.json();
         const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
