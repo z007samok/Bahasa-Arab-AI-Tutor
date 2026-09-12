@@ -32,46 +32,58 @@
             <div id="senarai-butang"></div>
         </div>
 
-       <!-- FASA 1: PENERANGAN KANDUNGAN -->
         <div id="section-kandungan" style="display:none;">
             <h2 id="tajuk-aktif"></h2>
             <div id="teks-penerangan"></div>
-            <p><strong>Topik Berkaitan:</strong></p>
-            <button onclick="kembaliKeMenu()">← Kembali ke Menu</button>
-            <button onclick="pergiKeFasa2()">Teruskan ke Contoh Al-Quran →</button>
+            
+            <div class="kaitan-section">
+                <h4>Topik Berkaitan:</h4>
+                <div id="butang-kaitan"></div>
+            </div>
+            
+            <br>
+            <button onclick="kembaliKeMenu()" style="background-color: #95a5a6;">← Kembali ke Menu</button>
+            <button onclick="pergiKeFasa2()" style="background-color: #2ecc71;">Teruskan ke Contoh Al-Quran →</button>
         </div>
         
-        <!-- FASA 2: CONTOH AL-QURAN -->
         <div id="section-fasa2" style="display:none;">
             <h2>Contoh Dari Al-Quran</h2>
-            <div id="loading-ai"></div>
-            <div id="hasil-ai"></div>
-            <button onclick="paparKandungan(babAktifId)">← Balik ke Penerangan</button>
-            <button onclick="pergiKeFasa3()">Uji Kefahaman (Kuiz) →</button>
-        </div>
-        
-        <!-- FASA 3: KUIZ KEFAHAMAN -->
-        <div id="section-fasa3" style="display:none;">
-            <h2>Kuiz Kefahaman</h2>
-            <div id="loading-kuiz"></div>
-            <div id="quiz-container">
+            <div id="loading-ai" style="color: blue; font-style: italic;"></div>
+            <div id="hasil-ai" style="background: #fff8e1; padding: 20px; border-radius: 8px; border: 1px solid #ffe082;"></div>
+            <br>
+            <button onclick="paparKandungan(databaseBab.find(b => b.tajuk === babAktif).id)" style="background-color: #95a5a6;">← Balik ke Penerangan</button>
+            <button onclick="pergiKeFasa3()" style="background-color: #9b59b6;">Uji Kefahaman (Kuiz) →</button>
+         </div>
+
+         <!-- FASA 3: KUIZ -->
+         <div id="section-fasa3" style="display:none;">
+            <h2>Uji Kefahaman (Kuiz)</h2>
+            <div id="loading-kuiz" style="color: purple; font-style: italic;"></div>
+            
+            <div id="quiz-container" style="display:none; margin: 20px auto; padding: 20px; border: 2px solid #27ae60; background: #f9f9f9; border-radius: 15px;">
                 <div id="quiz-content"></div>
             </div>
-            <!-- BUTANG ITU SEPATUTNYA DUDUK DI SINI SAHAJA -->
-            <button onclick="pergiKeFasa2()">← Balik ke Contoh Al-Quran</button>
-            <button id="btn-fasa4" onclick="pergiKeFasa4()">Latihan Sebutan →</button>
-        </div>
-        
-        <!-- FASA 4: AUDIO & SEBUTAN -->
-        <div id="section-fasa4" style="display:none;">
+              
+            <br>
+            <button onclick="pergiKeFasa2()" style="background-color: #95a5a6;">← Balik ke Contoh Al-Quran</button>
+            <button id="btn-fasa4" onclick="pergiKeFasa4()" style="display:none; background-color: #e91e63;">Teruskan ke Latihan Sebutan (Fasa 4) →</button>
+         </div>
+
+          <!-- FASA 4: SEBUTAN & AUDIO -->
+          <div id="section-fasa4" style="display:none;">
             <h2>Latihan Sebutan & Audio</h2>
-            <div id="fasa4-kalimah" style="font-size: 2.5em; text-align: center;"></div>
-            <button onclick="dengarSebutan()">🔊 Dengar Sebutan</button>
-            <button id="btn-rekod" onclick="mulaRakamSebutan()">🎤 Uji Sebutan Saya</button>
-            <div id="status-sebutan"></div>
-            <button onclick="kembaliKeFasa3()">← Balik ke Kuiz</button>
-            <button onclick="kembaliKeMenuUtamaDariFasa4()">Selesai (Menu Utama)</button>
-        </div>
+            <div style="background: #fff; padding: 25px; border-radius: 12px; border: 2px solid #e91e63; text-align: center; margin-top: 15px;">
+                <p style="color: #666;">Dengar contoh sebutan, kemudian sebutkan perkataan di bawah:</p>
+                
+                <div id="fasa4-kalimah" style="font-size: 3.5em; font-family: 'Amiri', serif; color: #2c3e50; margin: 15px 0;">--</div>
+                
+                <div style="margin: 15px 0;">
+                    <button onclick="dengarSebutan()" style="background-color: #3498db; font-size: 1.1em;">🔊 Dengar Sebutan</button>
+                    <button id="btn-rekod" onclick="mulaRakamSebutan()" style="background-color: #e74c3c; font-size: 1.1em;">🎤 Uji Sebutan Saya</button>
+                </div>
+
+                <div id="status-sebutan" style="margin-top: 15px; font-weight: bold; font-size: 1.1em;"></div>
+            </div>
             
             <br>
             <button onclick="kembaliKeFasa3()" style="background-color: #95a5a6;">← Balik ke Kuiz</button>
@@ -87,6 +99,7 @@
            </div>
              
            <br>
+           <button onclick="pergiKeFasa2()" style="background-color: #95a5a6;">← Balik ke Contoh Al-Quran</button>
            <button id="btn-fasa4" onclick="pergiKeFasa4()" style="display:none; background-color: #e91e63;">Teruskan ke Latihan Sebutan (Fasa 4) →</button>
          </div>
 
