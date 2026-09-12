@@ -52,13 +52,41 @@ fetch('data.json')
     });
 
 function binaMenuUtama() {
-    const bekasButang = document.getElementById('senarai-butang');
-    bekasButang.innerHTML = '';
-    databaseBab.forEach(bab => {
-        const btn = document.createElement('button');
-        btn.innerText = bab.tajuk;
-        btn.onclick = () => paparKandungan(bab.id);
-        bekasButang.appendChild(btn);
+    const bekas = document.getElementById('senarai-butang');
+    bekas.innerHTML = '';
+
+    // Dapatkan senarai kategori unik daripada data
+    const senaraiKategori = [...new Set(databaseBab.map(b => b.kategori || "Umum"))];
+
+    senaraiKategori.forEach(kat => {
+        // Bina bekas tajuk kategori
+        const kotakKategori = document.createElement('div');
+        kotakKategori.style.cssText = "margin-bottom: 25px; text-align: left;";
+
+        const tajukKat = document.createElement('h3');
+        tajukKat.innerText = "📌 " + kat;
+        tajukKat.style.cssText = "color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 6px; margin-bottom: 12px;";
+        kotakKategori.appendChild(tajukKat);
+
+        // Bekas susunan butang dalam grid kemas
+        const gridButang = document.createElement('div');
+        gridButang.style.cssText = "display: flex; flex-wrap: wrap; gap: 10px;";
+
+        // Masukkan butang bab yang sepadan dengan kategori
+        databaseBab.filter(b => (b.kategori || "Umum") === kat).forEach(bab => {
+            const btn = document.createElement('button');
+            btn.innerText = bab.tajuk;
+            btn.style.cssText = "padding: 10px 14px; font-size: 0.95em; border-radius: 8px; border: 1px solid #2980b9; background-color: #3498db; color: white; cursor: pointer; transition: 0.2s;";
+            
+            btn.onmouseover = () => btn.style.backgroundColor = '#2980b9';
+            btn.onmouseout = () => btn.style.backgroundColor = '#3498db';
+            btn.onclick = () => paparKandungan(bab.id);
+
+            gridButang.appendChild(btn);
+        });
+
+        kotakKategori.appendChild(gridButang);
+        bekas.appendChild(kotakKategori);
     });
 }
 
