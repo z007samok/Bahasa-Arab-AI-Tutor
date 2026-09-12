@@ -32,7 +32,7 @@ function hapusKey() {
 
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
-    GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+    GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${API_KEY}`;
     muatTurunData(); 
 }
 
