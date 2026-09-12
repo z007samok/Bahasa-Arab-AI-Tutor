@@ -1,42 +1,86 @@
 // Global Variables
+
 let API_KEY = localStorage.getItem('gemini_api_key');
+
 let GEMINI_URL = "";
-let databaseBab = [];
-let babAktif = "";
-let perkataanFasa4 = "كَتَبَ";
+
+
 
 // Fungsi yang dijalankan semasa aplikasi mula-mula dibuka
+
 window.onload = function() {
+
     if (!API_KEY) {
+
+        // Jika tiada key, tunjuk kotak input
+
         document.getElementById('setup-api').style.display = 'block';
+
     } else {
+
+        // Jika sudah ada, terus aktifkan aplikasi
+
         aktifkanApp();
+
     }
+
 };
 
+
+
 function simpanKey() {
+
     const inputKey = document.getElementById('api-input').value.trim();
+
     
+
     if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
+
         localStorage.setItem('gemini_api_key', inputKey);
+
         API_KEY = inputKey;
+
         alert("Tahniah! API Key disimpan.");
+
         aktifkanApp();
+
     } else {
+
         alert("Sila masukkan API Key yang sah.");
+
     }
+
 }
 
-function hapusKey() {
-    localStorage.removeItem('gemini_api_key');
-    location.reload();
-}
+
 
 function aktifkanApp() {
+
     document.getElementById('setup-api').style.display = 'none';
+
+    // Bina URL menggunakan model 2.5 Flash yang kita sahkan tadi
+
     GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+    
+
+    // Panggil fungsi asal untuk paparkan senarai bab
+
     muatTurunData(); 
+
 }
+
+
+
+// Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
+
+function hapusKey() {
+
+    localStorage.removeItem('gemini_api_key');
+
+    location.reload();
+
+} 
 
 function muatTurunData() {
     fetch('data.json')
