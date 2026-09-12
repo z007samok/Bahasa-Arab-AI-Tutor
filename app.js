@@ -12,7 +12,38 @@ window.onload = function() {
         aktifkanApp();
     }
 };
+// Senarai model fallback
+const SENARAI_MODEL = [
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-1.5-flash-8b"
+];
 
+// Fungsi panggil AI yang hilang
+async function panggilAI(promptTeks) {
+    for (let modelName of SENARAI_MODEL) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptTeks }] }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.candidates && data.candidates[0]) {
+                return data;
+            }
+        } catch (err) {
+            console.error(`Ralat pada ${modelName}:`, err);
+        }
+    }
+    throw new Error("Gagal menyambung ke API. Sila semak sambungan atau API Key.");
+}
 function simpanKey() {
     const inputKey = document.getElementById('api-input').value.trim();
     
