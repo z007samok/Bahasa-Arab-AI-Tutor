@@ -5,7 +5,7 @@ let databaseBab = [];
 let babAktif = "";
 let perkataanFasa4 = "كَتَبَ";
 
-// 1. PENGURUSAN API & INISIALISASI
+// Fungsi yang dijalankan semasa aplikasi mula-mula dibuka
 window.onload = function() {
     if (!API_KEY) {
         document.getElementById('setup-api').style.display = 'block';
@@ -16,6 +16,7 @@ window.onload = function() {
 
 function simpanKey() {
     const inputKey = document.getElementById('api-input').value.trim();
+    
     if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
         localStorage.setItem('gemini_api_key', inputKey);
         API_KEY = inputKey;
@@ -34,7 +35,7 @@ function hapusKey() {
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
     GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-    muatTurunData();
+    muatTurunData(); 
 }
 
 function muatTurunData() {
@@ -44,26 +45,10 @@ function muatTurunData() {
             databaseBab = data.senarai_bab;
             binaMenuUtama();
         })
-        .catch(err => console.error("Gagal memuat turun data.json:", err));
+        .catch(err => console.error("Gagal muat data.json:", err));
 }
 
-// 2. FUNGSI PANGGILAN AI TUNGGAL (Guna GEMINI_URL yang disahkan)
-async function panggilAI(promptTeks) {
-    const response = await fetch(GEMINI_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: promptTeks }] }] })
-    });
-
-    const data = await response.json();
-    if (response.ok && data.candidates && data.candidates[0]) {
-        return data;
-    } else {
-        throw new Error(data.error ? data.error.message : "Gagal menerima respons AI.");
-    }
-}
-
-// 3. MENU UTAMA BERKATEGORI
+// Paparan Menu Berkategori
 function binaMenuUtama() {
     const bekas = document.getElementById('senarai-butang');
     bekas.innerHTML = '';
@@ -106,7 +91,7 @@ function paparKandungan(id) {
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 }
 
-// 4. FASA 2: CONTOH AYAT & TERJEMAHAN BM
+// FASA 2: Contoh Al-Quran + Terjemahan BM (Guna fetch GEMINI_URL terus)
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'block';
@@ -116,11 +101,17 @@ async function pergiKeFasa2() {
     loading.innerText = "Mencari contoh dalam Al-Quran...";
     hasil.innerHTML = "";
 
-    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA tanpa teks pembuka/penutup:
-{"ayat": "teks al-quran berserta baris lengkap", "terjemahan": "terjemahan bahasa melayu", "surah": "Nama Surah: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "penerangan ringkas kedudukan nahu/saraf"}`;
+    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA tanpa teks lain:
+{"ayat": "teks ayat berserta baris", "terjemahan": "terjemahan dalam bahasa melayu", "surah": "Nama: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "penerangan tatabahasa"}`;
 
     try {
-        const data = await panggilAI(prompt);
+        const response = await fetch(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        
+        const data = await response.json();
         const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
         const json = JSON.parse(text);
 
@@ -141,7 +132,7 @@ async function pergiKeFasa2() {
     }
 }
 
-// 5. FASA 3: KUIZ KEFAHAMAN
+// FASA 3: Kuiz (Guna fetch GEMINI_URL terus)
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
@@ -154,10 +145,16 @@ async function janaKuiz(teksAnalisis) {
     if (btnFasa4) btnFasa4.style.display = 'none';
     loading.innerText = "AI sedang membina kuiz...";
 
-    const prompt = `Bina 3 soalan objektif dlm Bahasa Melayu berasaskan contoh ini: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
+    const prompt = `Bina 3 soalan objektif dlm BM berdasarkan: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
 
     try {
-        const data = await panggilAI(prompt);
+        const response = await fetch(GEMINI_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await response.json();
         const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
         const soalanArray = JSON.parse(text);
 
@@ -193,7 +190,7 @@ function pergiKeFasa3() {
     janaKuiz(document.getElementById('hasil-ai').innerText);
 }
 
-// 6. FASA 4: SEBUTAN & SUARA
+// FASA 4: Audio & Sebutan
 function pergiKeFasa4() {
     document.getElementById('section-fasa3').style.display = 'none';
     document.getElementById('section-fasa4').style.display = 'block';
@@ -217,7 +214,7 @@ function kembaliKeMenu() {
 }
 
 function dengarSebutan() {
-    if (!('speechSynthesis' in window)) return alert("Audio tidak disokong pada pelayar ini.");
+    if (!('speechSynthesis' in window)) return alert("Audio tidak disokong.");
     window.speechSynthesis.cancel();
     const sebutan = new SpeechSynthesisUtterance(perkataanFasa4);
     sebutan.lang = 'ar-SA';
@@ -231,7 +228,7 @@ function mulaRakamSebutan() {
     const btnRekod = document.getElementById('btn-rekod');
 
     if (!SpeechRecognition) {
-        statusDiv.innerHTML = "<span style='color:red;'>Pengecaman suara hanya disokong di Google Chrome.</span>";
+        statusDiv.innerHTML = "<span style='color:red;'>Gunakan Google Chrome untuk fungsi suara.</span>";
         return;
     }
 
@@ -240,7 +237,7 @@ function mulaRakamSebutan() {
 
     pengecam.onstart = function() {
         if (btnRekod) btnRekod.innerText = "Mendengar... 🔴";
-        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut sekarang...</span>";
+        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut perkataan sekarang...</span>";
     };
 
     pengecam.onresult = function(event) {
