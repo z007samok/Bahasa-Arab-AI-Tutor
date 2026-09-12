@@ -1,96 +1,77 @@
 // Global Variables
 let API_KEY = localStorage.getItem('gemini_api_key');
 let GEMINI_URL = "";
+let databaseBab = [];
+let babAktif = "";
+let perkataanFasa4 = "كَتَبَ";
 
-// Fungsi yang dijalankan semasa aplikasi mula-mula dibuka
-window.onload = function() {
-    if (!API_KEY) {
-        // Jika tiada key, tunjuk kotak input
-        document.getElementById('setup-api').style.display = 'block';
-    } else {
-        // Jika sudah ada, terus aktifkan aplikasi
-        aktifkanApp();
-    }
-};
-// Senarai model fallback
 const SENARAI_MODEL = [
     "gemini-1.5-flash",
     "gemini-1.5-pro",
     "gemini-1.5-flash-8b"
 ];
 
-// Fungsi panggil AI yang hilang
+// Fungsi Utama Panggilan AI
 async function panggilAI(promptTeks) {
     for (let modelName of SENARAI_MODEL) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-        
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptTeks }] }]
-                })
+                body: JSON.stringify({ contents: [{ parts: [{ text: promptTeks }] }] })
             });
 
             const data = await response.json();
-
             if (response.ok && data.candidates && data.candidates[0]) {
                 return data;
             }
         } catch (err) {
-            console.error(`Ralat pada ${modelName}:`, err);
+            console.error(`Ralat model ${modelName}:`, err);
         }
     }
-    throw new Error("Gagal menyambung ke API. Sila semak sambungan atau API Key.");
+    throw new Error("Gagal menyambung ke API. Sila semak API Key.");
 }
+
+// Inisialisasi Aplikasi
+window.onload = function() {
+    if (!API_KEY) {
+        document.getElementById('setup-api').style.display = 'block';
+    } else {
+        aktifkanApp();
+    }
+};
+
 function simpanKey() {
     const inputKey = document.getElementById('api-input').value.trim();
-    
     if (inputKey.length > 20 && inputKey.startsWith('AIza')) {
         localStorage.setItem('gemini_api_key', inputKey);
         API_KEY = inputKey;
         alert("Tahniah! API Key disimpan.");
         aktifkanApp();
     } else {
-        alert("Sila masukkan API Key yang sah.");
+        alert("API Key tidak sah.");
     }
 }
 
 function aktifkanApp() {
     document.getElementById('setup-api').style.display = 'none';
-    GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=" + API_KEY;
-    
-    // TUKAR BARIS DI BAWAH INI:
-    binaMenuUtama(); 
+    fetch('data.json')
+        .then(res => res.json())
+        .then(data => {
+            databaseBab = data.senarai_bab;
+            binaMenuUtama();
+        })
+        .catch(err => console.error("Gagal muat data.json:", err));
 }
 
-// Fungsi untuk 'Reset' jika anda ingin tukar key di masa depan (Opsional)
-function hapusKey() {
-    localStorage.removeItem('gemini_api_key');
-    location.reload();
-}
-
-let databaseBab = [];
-let babAktif = "";
-
-// 1. Ambil data bab dari JSON
-fetch('data.json')
-    .then(response => response.json())
-    .then(data => {
-        databaseBab = data.senarai_bab;
-        binaMenuUtama();
-    });
-
+// Paparan Menu
 function binaMenuUtama() {
     const bekas = document.getElementById('senarai-butang');
     bekas.innerHTML = '';
-
-    // Dapatkan senarai kategori unik daripada data
     const senaraiKategori = [...new Set(databaseBab.map(b => b.kategori || "Umum"))];
 
     senaraiKategori.forEach(kat => {
-        // Bina bekas tajuk kategori
         const kotakKategori = document.createElement('div');
         kotakKategori.style.cssText = "margin-bottom: 25px; text-align: left;";
 
@@ -99,20 +80,14 @@ function binaMenuUtama() {
         tajukKat.style.cssText = "color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 6px; margin-bottom: 12px;";
         kotakKategori.appendChild(tajukKat);
 
-        // Bekas susunan butang dalam grid kemas
         const gridButang = document.createElement('div');
         gridButang.style.cssText = "display: flex; flex-wrap: wrap; gap: 10px;";
 
-        // Masukkan butang bab yang sepadan dengan kategori
         databaseBab.filter(b => (b.kategori || "Umum") === kat).forEach(bab => {
             const btn = document.createElement('button');
             btn.innerText = bab.tajuk;
-            btn.style.cssText = "padding: 10px 14px; font-size: 0.95em; border-radius: 8px; border: 1px solid #2980b9; background-color: #3498db; color: white; cursor: pointer; transition: 0.2s;";
-            
-            btn.onmouseover = () => btn.style.backgroundColor = '#2980b9';
-            btn.onmouseout = () => btn.style.backgroundColor = '#3498db';
+            btn.style.cssText = "padding: 10px 14px; font-size: 0.95em; border-radius: 8px; border: 1px solid #2980b9; background-color: #3498db; color: white; cursor: pointer;";
             btn.onclick = () => paparKandungan(bab.id);
-
             gridButang.appendChild(btn);
         });
 
@@ -126,27 +101,14 @@ function paparKandungan(id) {
     babAktif = bab.tajuk;
     document.getElementById('section-menu').style.display = 'none';
     document.getElementById('section-kandungan').style.display = 'block';
-    document.getElementById('section-fasa2').style.display = 'none'; // Sembunyi fasa 2 dulu
-    
+    document.getElementById('section-fasa2').style.display = 'none';
+    document.getElementById('section-fasa3').style.display = 'none';
+    document.getElementById('section-fasa4').style.display = 'none';
     document.getElementById('tajuk-aktif').innerText = bab.tajuk;
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
-
-    // Bina butang kaitan
-    const bekasKaitan = document.getElementById('butang-kaitan');
-    bekasKaitan.innerHTML = '';
-    bab.kaitan.forEach(idKaitan => {
-        const babTerkait = databaseBab.find(b => b.id === idKaitan);
-        if (babTerkait) {
-            const btn = document.createElement('button');
-            btn.innerText = "Lihat juga: " + babTerkait.tajuk;
-            btn.style.backgroundColor = "#e67e22";
-            btn.onclick = () => paparKandungan(idKaitan);
-            bekasKaitan.appendChild(btn);
-        }
-    });
 }
 
-// FASA 2: CONTOH AL-QURAN
+// Fasa 2: Contoh Al-Quran & Terjemahan
 async function pergiKeFasa2() {
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa2').style.display = 'block';
@@ -156,32 +118,19 @@ async function pergiKeFasa2() {
     loading.innerText = "Mencari contoh dalam Al-Quran...";
     hasil.innerHTML = "";
 
-    // Tambah permintaan terjemahan Bahasa Melayu dalam prompt
-    const prompt = `Berikan satu keratan ayat Al-Quran pendek yang mengandungi contoh bagi topik: "${babAktif}". 
-Respon HANYA dalam format JSON tulen tanpa penerangan lain:
-{
-  "ayat": "teks ayat al-quran berserta baris lengkap",
-  "terjemahan": "terjemahan ayat dalam Bahasa Melayu",
-  "surah": "Nama Surah: No Ayat",
-  "word": "perkataan sasaran",
-  "root": "kata dasar perkataan",
-  "wazan": "wazan atau timbangan",
-  "function": "penerangan ringkas kedudukan/fungsi tatabahasa"
-}`;
+    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA:
+{"ayat": "teks berserta baris", "terjemahan": "maksud dalam BM", "surah": "Nama: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "fungsi tatabahasa"}`;
 
     try {
         const data = await panggilAI(prompt);
         const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
         const json = JSON.parse(text);
 
+        perkataanFasa4 = json.word || "كَتَبَ";
         loading.innerText = "";
         hasil.innerHTML = `
-            <div style="font-size: 2.2em; direction: rtl; margin-bottom: 12px; font-family: 'Amiri', serif; line-height: 1.6;">
-                ${json.ayat}
-            </div>
-            <p style="color: #2c3e50; font-size: 1.05em; margin-bottom: 10px;">
-                <strong>Maksud:</strong> <em>"${json.terjemahan}"</em>
-            </p>
+            <div style="font-size: 2.2em; direction: rtl; margin-bottom: 12px; font-family: 'Amiri', serif; line-height: 1.6;">${json.ayat}</div>
+            <p style="color: #2c3e50; font-size: 1.05em; margin-bottom: 10px;"><strong>Maksud:</strong> <em>"${json.terjemahan}"</em></p>
             <p><strong>Surah:</strong> ${json.surah}</p>
             <hr style="border: 0; border-top: 1px solid #e0d0b0; margin: 15px 0;">
             <p><strong>Perkataan:</strong> <span style="color: #d35400; font-weight: bold; font-size: 1.3em;">${json.word}</span></p>
@@ -190,141 +139,68 @@ Respon HANYA dalam format JSON tulen tanpa penerangan lain:
             <p><strong>Fungsi:</strong> ${json.function}</p>
         `;
     } catch (err) {
-        console.error("Ralat Fasa 2:", err);
         loading.innerText = "Ralat: " + err.message;
     }
 }
 
-// --- FASA 3: PENJANAAN KUIZ ---
-
+// Fasa 3: Kuiz
 async function janaKuiz(teksAnalisis) {
     const quizContainer = document.getElementById('quiz-container');
     const quizContent = document.getElementById('quiz-content');
-    const loadingKuiz = document.getElementById('loading-kuiz');
+    const loading = document.getElementById('loading-kuiz');
+    const btnFasa4 = document.getElementById('btn-fasa4');
     
-    // Sembunyikan bahagian lama supaya tak nampak serabut
     document.getElementById('section-fasa2').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'block';
-    
     quizContainer.style.display = 'none';
-    loadingKuiz.innerHTML = "<span style='color:orange;'>⏳ Sedang menghubungi AI (3-7 saat)...</span>";
+    if (btnFasa4) btnFasa4.style.display = 'none';
+    loading.innerText = "AI sedang membina kuiz...";
 
-    // Prompt yang lebih santai supaya AI tidak "mogok"
-    const promptKuiz = `Berdasarkan topik nahu Bahasa Arab ini: ${teksAnalisis}, sila hasilkan 3 soalan objektif ringkas dalam Bahasa Melayu. Berikan jawapan dalam format JSON sahaja seperti contoh ini: [{"soalan": "Apa itu...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
+    const prompt = `Bina 3 soalan objektif dlm BM berdasarkan: ${teksAnalisis}. Respon JSON SAHAJA: [{"soalan": "...", "pilihan": ["A", "B", "C"], "jawapan": 0, "penjelasan": "..."}]`;
 
     try {
-        const response = await fetch(GEMINI_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptKuiz }] }]
-            })
-        });
+        const data = await panggilAI(prompt);
+        const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+        const soalanArray = JSON.parse(text);
 
-        const data = await response.json();
-
-        // Cek jika API Key bermasalah atau limit habis
-        if (data.error) {
-            throw new Error(data.error.message);
-        }
-
-        if (!data.candidates || !data.candidates[0]) {
-            throw new Error("AI sedang sibuk atau menolak permintaan. Sila klik butang sekali lagi.");
-        }
-
-        let rawJson = data.candidates[0].content.parts[0].text;
-        rawJson = rawJson.replace(/```json/ig, '').replace(/```/g, '').trim();
-        
-        const soalanArray = JSON.parse(rawJson);
-
-        loadingKuiz.innerText = "";
+        loading.innerText = "";
         quizContainer.style.display = 'block';
-        paparkanKuiz(soalanArray);
-
-    } catch (err) {
-        console.error("Ralat Detail:", err);
-        loadingKuiz.innerHTML = `<p style='color:red;'>⚠️ Ralat: ${err.message}<br><button onclick="location.reload()" style="background:gray">Refresh App</button></p>`;
-    }
-}
-
-function paparkanKuiz(soalanArray) {
-    const quizContent = document.getElementById('quiz-content');
-    quizContent.innerHTML = ""; 
-
-    soalanArray.forEach((s, sIndex) => {
-        let html = `<div id="blok-${sIndex}" style="margin-bottom:20px; padding:10px; border-bottom:1px solid #ddd;">
-                        <p><strong>Soalan ${sIndex + 1}:</strong> ${s.soalan}</p>`;
+        if (btnFasa4) btnFasa4.style.display = 'inline-block';
         
-        s.pilihan.forEach((p, pIndex) => {
-            html += `<button onclick="semakJawapanBaru(${sIndex}, ${pIndex}, ${s.jawapan}, '${s.penjelasan.replace(/'/g, "\\'")}', this)" 
-                             style="display:block; margin:5px 0; width:100%; text-align:left; background:white; color:black; border:1px solid #ccc;">
-                        ${p}
-                     </button>`;
+        quizContent.innerHTML = "";
+        soalanArray.forEach((s, i) => {
+            let html = `<p><strong>${i+1}. ${s.soalan}</strong></p>`;
+            s.pilihan.forEach((p, pi) => {
+                html += `<button onclick="semakJawapan(${i}, ${pi}, ${s.jawapan}, '${s.penjelasan.replace(/'/g, "\\'")}', this)" style="display:block; width:100%; text-align:center; background:white; color:black; border:1px solid #ccc; margin:10px 0; padding:15px; font-size:1.8em; border-radius:8px; cursor:pointer;">${p}</button>`;
+            });
+            quizContent.innerHTML += `<div id="q-${i}" style="margin-bottom:20px;">${html}<div id="fb-${i}"></div></div>`;
         });
-        
-        html += `<div id="fb-${sIndex}" style="margin-top:10px; font-weight:bold; display:none;"></div></div>`;
-        quizContent.innerHTML += html;
-    });
-}
-
-function semakJawapanBaru(sIndex, pilihIndex, betulIndex, penjelasan, btn) {
-    const fb = document.getElementById(`fb-${sIndex}`);
-    const semuaButang = document.querySelectorAll(`#blok-${sIndex} button`);
-    
-    semuaButang.forEach(b => b.disabled = true);
-
-    if (pilihIndex === betulIndex) {
-        btn.style.backgroundColor = "#2ecc71";
-        btn.style.color = "white";
-        fb.innerHTML = "✅ Betul! " + penjelasan;
-        fb.style.color = "green";
-        document.getElementById('btn-fasa4').style.display = 'inline-block';
-    } else {
-        btn.style.backgroundColor = "#e74c3c";
-        btn.style.color = "white";
-        fb.innerHTML = "❌ Salah. " + penjelasan;
-        fb.style.color = "red";
+    } catch (err) {
+        loading.innerText = "Gagal menjana kuiz: " + err.message;
     }
-    fb.style.display = "block";
 }
-// Jambatan untuk butang lama di HTML
+
+function semakJawapan(si, pi, bi, pen, btn) {
+    const fb = document.getElementById(`fb-${si}`);
+    if (pi === bi) {
+        btn.style.backgroundColor = "#d4edda";
+        fb.innerHTML = "✅ " + pen;
+    } else {
+        btn.style.backgroundColor = "#f8d7da";
+        fb.innerHTML = "❌ Salah.";
+    }
+}
+
 function pergiKeFasa3() {
-    const hasilAI = document.getElementById('hasil-ai');
-    if (hasilAI) {
-        janaKuiz(hasilAI.innerText);
-    }
+    janaKuiz(document.getElementById('hasil-ai').innerText);
 }
 
-function kembaliKeMenu() {
-    document.getElementById('section-menu').style.display = 'block';
-    document.getElementById('section-kandungan').style.display = 'none';
-    document.getElementById('section-fasa2').style.display = 'none';
-    document.getElementById('quiz-container').style.display = 'none';
-}
-
-// --- FASA 4: SEBUTAN & REKOD SUARA ---
-
-let perkataanFasa4 = "كَتَبَ";
-
+// Fasa 4: Audio & Sebutan
 function pergiKeFasa4() {
-    const secFasa3 = document.getElementById('section-fasa3');
-    const secFasa4 = document.getElementById('section-fasa4');
-    const fasa4Kalimah = document.getElementById('fasa4-kalimah');
-    const statusSebutan = document.getElementById('status-sebutan');
-
-    if (secFasa3) secFasa3.style.display = 'none';
-    if (secFasa4) secFasa4.style.display = 'block';
-
-    // Cari perkataan sasaran daripada paparan Fasa 2
-    const bekasPerkataan = document.querySelector('#hasil-ai span');
-    if (bekasPerkataan && bekasPerkataan.innerText.trim() !== "") {
-        perkataanFasa4 = bekasPerkataan.innerText.trim();
-    } else {
-        perkataanFasa4 = "كَتَبَ"; // Nilai sandaran jika belum jana perkataan
-    }
-
-    if (fasa4Kalimah) fasa4Kalimah.innerText = perkataanFasa4;
-    if (statusSebutan) statusSebutan.innerHTML = "";
+    document.getElementById('section-fasa3').style.display = 'none';
+    document.getElementById('section-fasa4').style.display = 'block';
+    document.getElementById('fasa4-kalimah').innerText = perkataanFasa4;
+    document.getElementById('status-sebutan').innerHTML = "";
 }
 
 function kembaliKeFasa3() {
@@ -337,87 +213,50 @@ function kembaliKeMenuUtamaDariFasa4() {
     document.getElementById('section-menu').style.display = 'block';
 }
 
-// 1. Dengar Sebutan (Text-to-Speech)
+function kembaliKeMenu() {
+    document.getElementById('section-kandungan').style.display = 'none';
+    document.getElementById('section-menu').style.display = 'block';
+}
+
 function dengarSebutan() {
-    if (!('speechSynthesis' in window)) {
-        alert("Pelayar web ini tidak menyokong fungsi Text-to-Speech.");
-        return;
-    }
-
+    if (!('speechSynthesis' in window)) return alert("Audio tidak disokong.");
     window.speechSynthesis.cancel();
-
-    const teks = perkataanFasa4 && perkataanFasa4 !== "--" ? perkataanFasa4 : "كَتَبَ";
-    const sebutan = new SpeechSynthesisUtterance(teks);
+    const sebutan = new SpeechSynthesisUtterance(perkataanFasa4);
     sebutan.lang = 'ar-SA';
     sebutan.rate = 0.8;
-
-    // Cari suara Arab khusus dalam sistem peranti jika tersedia
-    const senaraiSuara = window.speechSynthesis.getVoices();
-    const suaraArab = senaraiSuara.find(v => v.lang.startsWith('ar'));
-    if (suaraArab) {
-        sebutan.voice = suaraArab;
-    }
-
     window.speechSynthesis.speak(sebutan);
 }
 
-// 2. Uji Sebutan (Speech Recognition)
 function mulaRakamSebutan() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const statusDiv = document.getElementById('status-sebutan');
     const btnRekod = document.getElementById('btn-rekod');
 
     if (!SpeechRecognition) {
-        statusDiv.innerHTML = "<span style='color:red;'>Pengecaman suara hanya disokong di Google Chrome atau pelayar Chromium.</span>";
+        statusDiv.innerHTML = "<span style='color:red;'>Gunakan Google Chrome untuk fungsi suara.</span>";
         return;
     }
 
     const pengecam = new SpeechRecognition();
     pengecam.lang = 'ar-SA';
-    pengecam.interimResults = false;
-    pengecam.maxAlternatives = 3;
 
     pengecam.onstart = function() {
-        if (btnRekod) {
-            btnRekod.innerText = "Mendengar... 🔴";
-            btnRekod.disabled = true;
-        }
-        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sebut sekarang ke mikrofon...</span>";
+        if (btnRekod) btnRekod.innerText = "Mendengar... 🔴";
+        statusDiv.innerHTML = "<span style='color:#e67e22;'>Sila sebut perkataan sekarang...</span>";
     };
 
     pengecam.onresult = function(event) {
         const suaraDiterima = event.results[0][0].transcript.trim();
-
-        // Buang baris diakritik untuk perbandingan yang tepat
         const buangBaris = (t) => t.replace(/[\u064B-\u065F\u0670]/g, '').trim();
-        const sasaranBersih = buangBaris(perkataanFasa4);
-        const inputBersih = buangBaris(suaraDiterima);
 
-        if (inputBersih.includes(sasaranBersih) || sasaranBersih.includes(inputBersih)) {
-            statusDiv.innerHTML = `<span style='color:green;'>✅ Sebutan Tepat! Suara dikesan: <strong>${suaraDiterima}</strong></span>`;
+        if (buangBaris(suaraDiterima).includes(buangBaris(perkataanFasa4))) {
+            statusDiv.innerHTML = `<span style='color:green;'>✅ Sebutan Tepat: <strong>${suaraDiterima}</strong></span>`;
         } else {
-            statusDiv.innerHTML = `<span style='color:red;'>❌ Kurang Tepat. Suara dikesan: <strong>${suaraDiterima}</strong> (Sasaran: ${perkataanFasa4}). Cuba lagi!</span>`;
+            statusDiv.innerHTML = `<span style='color:red;'>❌ Kurang Tepat: <strong>${suaraDiterima}</strong>. Cuba lagi!</span>`;
         }
     };
 
-    pengecam.onerror = function(event) {
-        if (event.error === 'not-allowed') {
-            statusDiv.innerHTML = "<span style='color:red;'>Kebenaran mikrofon disekat. Sila aktifkan izin mikrofon pada ikon kunci di sebelah URL pelayar.</span>";
-        } else {
-            statusDiv.innerHTML = `<span style='color:red;'>Ralat mikrofon: ${event.error}</span>`;
-        }
-    };
-
-    pengecam.onend = function() {
-        if (btnRekod) {
-            btnRekod.innerText = "🎤 Uji Sebutan Saya";
-            btnRekod.disabled = false;
-        }
-    };
-
-    try {
-        pengecam.start();
-    } catch (e) {
-        console.error("Gagal memulakan pengecam:", e);
-    }
+    pengecam.onerror = (e) => statusDiv.innerHTML = `<span style='color:red;'>Ralat: ${e.error}</span>`;
+    pengecam.onend = () => { if (btnRekod) btnRekod.innerText = "🎤 Uji Sebutan Saya"; };
+    pengecam.start();
 }
