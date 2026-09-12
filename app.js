@@ -91,8 +91,9 @@ function paparKandungan(id) {
     document.getElementById('teks-penerangan').innerText = bab.penerangan;
 }
 
-// FASA 2: Contoh Al-Quran + Terjemahan BM (Guna fetch GEMINI_URL terus)
-// Sembunyikan semua seksyen lain
+// FASA 2: Contoh Al-Quran + Terjemahan BM
+async function pergiKeFasa2() {
+    // Sembunyikan semua seksyen lain
     document.getElementById('section-kandungan').style.display = 'none';
     document.getElementById('section-fasa3').style.display = 'none';
     document.getElementById('section-fasa4').style.display = 'none'; // <-- Tambah/pastikan baris ini ada
@@ -107,7 +108,7 @@ function paparKandungan(id) {
     if (hasil.innerHTML.trim() !== "") {
         return;
     }
-    
+
     loading.innerText = "Mencari contoh dalam Al-Quran...";
     hasil.innerHTML = "";
 
