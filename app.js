@@ -151,47 +151,75 @@ function kembaliKeMenu() {
 // ==========================================
 function formatPaparanFasa2(json) {
     perkataanFasa4 = json.word || "كَتَبَ";
+    
     return `
-        <div style="font-size: 2.2em; direction: rtl; text-align: center; margin-bottom: 15px; font-family: 'Amiri', 'Traditional Arabic', serif; line-height: 1.8; color: #1a252f;">
+        <!-- 1. AYAT AL-QURAN -->
+        <div style="font-size: 2.2em; direction: rtl; text-align: center; margin-bottom: 15px; font-family: 'Amiri', 'Traditional Arabic', serif; line-height: 1.8; color: #1a252f; padding: 15px; background: #fdfefe; border-radius: 10px; border: 1px solid #e5e7e9;">
             ${json.ayat}
         </div>
-        <p style="color: #2c3e50; font-size: 1.05em; margin-bottom: 8px; text-align: center;">
-            <strong>Maksud:</strong> <em>"${json.terjemahan}"</em>
-        </p>
-        <p style="text-align: center; color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+        <p style="text-align: center; color: #7f8c8d; font-size: 0.9em; margin-bottom: 20px;">
             <strong>Surah:</strong> ${json.surah}
         </p>
+
+        <!-- 2. PERBANDINGAN TERJEMAHAN (SINTAKSIS) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-top: 3px solid #95a5a6;">
+                <small style="color: #7f8c8d; font-weight: bold; display: block; margin-bottom: 5px;">Terjemahan Harfiyyah (Literal K-P-O)</small>
+                <em style="color: #2c3e50; font-size: 0.95em;">"${json.terjemahan_harfiyyah}"</em>
+            </div>
+            <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; border-top: 3px solid #3498db;">
+                <small style="color: #7f8c8d; font-weight: bold; display: block; margin-bottom: 5px;">Terjemahan Maknawiyyah (Kontekstual S-K-O)</small>
+                <em style="color: #154360; font-size: 0.95em;">"${json.terjemahan_maknawiyyah}"</em>
+            </div>
+        </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 15px;">
-            <div style="background: #ffffff; padding: 12px; border-radius: 8px; border-left: 4px solid #e67e22; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <hr style="border: 0; border-top: 1px dashed #bdc3c7; margin: 20px 0;">
+
+        <!-- 3. KAD ANALISIS NAHU & SARAF -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            
+            <!-- Analisis Perkataan -->
+            <div style="background: #ffffff; padding: 15px; border-radius: 8px; border-left: 4px solid #e67e22; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <small style="color: #7f8c8d; font-weight: bold;">KALIMAH SASARAN</small>
-                <div style="font-size: 1.4em; color: #d35400; font-weight: bold; direction: rtl;">${json.word}</div>
+                <div style="font-size: 1.5em; color: #d35400; font-weight: bold; direction: rtl;">${json.word}</div>
+                <div style="margin-top: 8px; font-size: 0.9em; color: #27ae60;"><strong>Fungsi:</strong> ${json.function}</div>
+                <div style="margin-top: 4px; font-size: 0.9em; color: #8e44ad;"><strong>Wazan:</strong> ${json.wazan}</div>
             </div>
-            <div style="background: #ffffff; padding: 12px; border-radius: 8px; border-left: 4px solid #3498db; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <small style="color: #7f8c8d; font-weight: bold;">KATA DASAR (ROOT)</small>
-                <div style="font-size: 1.2em; color: #2980b9; font-weight: bold;">${json.root}</div>
+
+            <!-- Tokenisasi Saraf (Visual Pemecahan) -->
+            <div style="background: #ffffff; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <small style="color: #7f8c8d; font-weight: bold; display: block; margin-bottom: 10px;">PECAHAN MORFOLOGI (SARAF)</small>
+                <div style="display: flex; direction: rtl; justify-content: center; gap: 8px; font-size: 1.3em; font-weight: bold;">
+                    <span style="background: #ffeaa7; color: #d35400; padding: 2px 8px; border-radius: 4px;" title="Awalan">${json.pecahan_saraf.awalan}</span>
+                    <span style="background: #74b9ff; color: #0984e3; padding: 2px 8px; border-radius: 4px;" title="Kata Dasar">${json.pecahan_saraf.dasar}</span>
+                    <span style="background: #ffeaa7; color: #d35400; padding: 2px 8px; border-radius: 4px;" title="Akhiran">${json.pecahan_saraf.akhiran}</span>
+                </div>
             </div>
-            <div style="background: #ffffff; padding: 12px; border-radius: 8px; border-left: 4px solid #9b59b6; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <small style="color: #7f8c8d; font-weight: bold;">WAZAN / TIMBANGAN</small>
-                <div style="font-size: 1.1em; color: #8e44ad; font-weight: bold;">${json.wazan}</div>
-            </div>
-            <div style="background: #ffffff; padding: 12px; border-radius: 8px; border-left: 4px solid #2ecc71; box-shadow: 0 2px 4px rgba(0,0,0,0.05); grid-column: span 1 / -1;">
-                <small style="color: #7f8c8d; font-weight: bold;">KEDUDUKAN NAHU / FUNGSI</small>
-                <div style="font-size: 1em; color: #27ae60; margin-top: 4px;">${json.function}</div>
+
+            <!-- Hubungan Nahu (Attention Mechanism) -->
+            <div style="background: #ffffff; padding: 15px; border-radius: 8px; border-left: 4px solid #2ecc71; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <small style="color: #7f8c8d; font-weight: bold; display: block; margin-bottom: 10px;">RANTAIAN NAHU</small>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; direction: rtl;">
+                    <span style="background: #e8f8f5; color: #27ae60; padding: 4px 10px; border-radius: 4px; border: 1px solid #a3e4d7;">${json.pasangan_nahu.perkataan_amil}</span>
+                    <span style="color: #bdc3c7;">←</span>
+                    <span style="background: #fef5e7; color: #e67e22; padding: 4px 10px; border-radius: 4px; border: 1px solid #f8c471;">${json.pasangan_nahu.perkataan_sasaran}</span>
+                </div>
+                <small style="display: block; text-align: center; margin-top: 8px; color: #95a5a6;">(Amil memepengaruhi Sasaran)</small>
             </div>
         </div>
 
-        <div style="text-align: right; margin-top: 12px;">
-            <button onclick="salinNotaFasa2()" style="background-color: #7f8c8d; padding: 6px 12px; font-size: 0.85em; border-radius: 5px;">📋 Salin Nota Analisis</button>
+        <!-- 4. RUANG SEMANTIK (KELUARGA KATA) -->
+        <div style="background: #fdf2e9; padding: 15px; border-radius: 8px; border: 1px solid #fae5d3; text-align: center;">
+            <small style="color: #d35400; font-weight: bold; display: block; margin-bottom: 10px;">RANGKAIAN SEMANTIK (Keluarga Akar Kata: ${json.pecahan_saraf.dasar})</small>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                ${json.keluarga_kata.map(kata => `<span style="background: white; color: #e67e22; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; border: 1px solid #f5cba7;">${kata}</span>`).join('')}
+            </div>
+        </div>
+
+        <div style="text-align: right; margin-top: 15px;">
+            <button onclick="salinNotaFasa2()" style="background-color: #7f8c8d; padding: 8px 15px; font-size: 0.9em; border-radius: 5px;">📋 Salin Nota Lengkap</button>
         </div>
     `;
-}
-
-function salinNotaFasa2() {
-    const teks = document.getElementById('hasil-ai').innerText;
-    navigator.clipboard.writeText(teks).then(() => {
-        alert("Nota analisis berjaya disalin ke papan keratan (clipboard)!");
-    });
 }
 
 async function pergiKeFasa2() {
@@ -203,8 +231,9 @@ async function pergiKeFasa2() {
     const loading = document.getElementById('loading-ai');
     const hasil = document.getElementById('hasil-ai');
     
-    // Semakan Memori Tempatan (LocalStorage Cache)
-    const kunciMemori = 'quran_cache_' + babAktif;
+    // NOTA PENTING: Kunci cache ditukar kepada 'quran_cache_v2_' 
+    // supaya sistem mengambil format JSON baharu yang lengkap, bukan memori lama.
+    const kunciMemori = 'quran_cache_v2_' + babAktif;
     const dataLama = localStorage.getItem(kunciMemori);
 
     if (dataLama) {
@@ -213,11 +242,22 @@ async function pergiKeFasa2() {
         return;
     }
 
-    loading.innerText = "Mencari contoh dalam Al-Quran...";
+    loading.innerText = "Menganalisis Saraf, Nahu, & Semantik Al-Quran...";
     hasil.innerHTML = "";
 
-    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA tanpa teks lain:
-{"ayat": "teks ayat berserta baris", "terjemahan": "terjemahan dalam bahasa melayu", "surah": "Nama: No Ayat", "word": "kalimah sasaran", "root": "kata dasar", "wazan": "wazan", "function": "penerangan tatabahasa"}`;
+    const prompt = `Berikan satu keratan ayat Al-Quran pendek mengandungi topik: "${babAktif}". Respon JSON SAHAJA tanpa teks lain, dengan struktur tepat seperti berikut:
+    {
+        "ayat": "teks ayat berserta baris",
+        "terjemahan_harfiyyah": "terjemahan lurus/literal perkataan demi perkataan",
+        "terjemahan_maknawiyyah": "terjemahan struktur Melayu (kontekstual)",
+        "surah": "Nama: No Ayat",
+        "word": "kalimah sasaran dalam ayat",
+        "pecahan_saraf": {"awalan": "imbuhan awal atau tiada", "dasar": "huruf akar kata asas (root)", "akhiran": "imbuhan akhir atau tiada"},
+        "pasangan_nahu": {"perkataan_amil": "perkataan sebelumnya yg memberi kesan nahu", "perkataan_sasaran": "kalimah sasaran tadi"},
+        "keluarga_kata": ["kata serumpun 1 (maksud)", "kata serumpun 2 (maksud)", "kata serumpun 3 (maksud)"],
+        "wazan": "wazan kalimah sasaran",
+        "function": "penerangan tatabahasa ringkas"
+    }`;
 
     try {
         const response = await fetch(GEMINI_URL, {
