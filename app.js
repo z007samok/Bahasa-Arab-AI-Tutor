@@ -5,10 +5,12 @@ let databaseBab = [];
 let babAktif = "";
 let perkataanFasa4 = "كَتَبَ";
 
+// Senarai model yang disokong (Model moden & alias rasmi)
 const SENARAI_MODEL = [
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-    "gemini-1.5-flash-8b"
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-flash-latest",
+    "gemini-pro-latest"
 ];
 
 // Fungsi Utama Panggilan AI
