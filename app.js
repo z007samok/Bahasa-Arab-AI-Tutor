@@ -576,7 +576,8 @@ function binaKeyboardArab() {
     aksara.forEach(huruf => {
         const btn = document.createElement('button');
         btn.innerText = huruf;
-        btn.style.cssText = "padding: 10px 15px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; width: 45px; text-align: center;";
+        // Penambahan 'color: #2c3e50;' supaya huruf warna gelap
+        btn.style.cssText = "padding: 10px 15px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; color: #2c3e50; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; width: 45px; text-align: center;";
         btn.onclick = () => taipArab(huruf);
         grid.appendChild(btn);
     });
