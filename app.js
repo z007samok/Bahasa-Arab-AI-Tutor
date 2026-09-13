@@ -551,6 +551,58 @@ function kembaliKeMenuUtamaDariFasa5() {
     binaMenuUtama();
 }
 
+// ==========================================
+// FUNGSI PAPAN KEKUNCI ARAB MAYA
+// ==========================================
+function toggleKeyboardArab() {
+    const kb = document.getElementById('keyboard-arab');
+    kb.style.display = (kb.style.display === 'none') ? 'block' : 'none';
+    
+    if (document.getElementById('papan-kekunci-grid').innerHTML === '') {
+        binaKeyboardArab();
+    }
+}
+
+function binaKeyboardArab() {
+    const grid = document.getElementById('papan-kekunci-grid');
+    // Susunan huruf asas & baris (tashkeel)
+    const aksara = [
+        'ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج','د',
+        'ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط',
+        'ئ','ء','ؤ','ر','لا','ى','ة','و','ز','ظ',
+        'َ','ِ','ُ','ً','ٍ','ٌ','ْ','ّ'
+    ];
+
+    aksara.forEach(huruf => {
+        const btn = document.createElement('button');
+        btn.innerText = huruf;
+        btn.style.cssText = "padding: 10px 15px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; width: 45px; text-align: center;";
+        btn.onclick = () => taipArab(huruf);
+        grid.appendChild(btn);
+    });
+}
+
+function taipArab(huruf) {
+    const input = document.getElementById('input-karangan');
+    // Masukkan huruf pada kedudukan cursor atau di hujung
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    input.value = input.value.substring(0, start) + huruf + input.value.substring(end);
+    input.focus();
+    input.selectionEnd = start + huruf.length;
+}
+
+function padamArab() {
+    const input = document.getElementById('input-karangan');
+    if (input.value.length > 0) {
+        input.value = input.value.slice(0, -1);
+    }
+    input.focus();
+}
+
+// ==========================================
+// SEMAKAN KARANGAN & INTEGRASI SOAL JANJI GEMINI
+// ==========================================
 async function semakKarangan() {
     const inputAyat = document.getElementById('input-karangan').value.trim();
     if (!inputAyat) {
@@ -564,22 +616,21 @@ async function semakKarangan() {
     loading.innerText = "AI sedang menyemak struktur Nahu dan Saraf ayat anda...";
     hasil.innerHTML = "";
 
-    const prompt = `Anda adalah seorang guru bahasa Arab. Pelajar sedang belajar bab "${babAktif}". 
-    Pelajar telah membina ayat ini: "${inputAyat}".
-    Semak ketepatan struktur ayat ini, terutamanya sama ada ia menepati hukum nahu bagi bab "${babAktif}".
+    const prompt = `Anda adalah guru bahasa Arab. Pelajar sedang belajar bab "${babAktif}". 
+    Ayat binaan pelajar: "${inputAyat}".
     
-    Sila balas dalam format JSON SAHAJA seperti struktur ini:
+    Semak ketepatan struktur ayat ini dari sudut nahu.
+    Balas dalam format JSON SAHAJA:
     {
         "status": "Tepat / Ada Kesilapan",
-        "ayat_pembetulan": "Tulis semula ayat dengan baris (tashkeel) yang betul 100%. Jika sudah betul, kekalkan.",
-        "ulasan_guru": "Penerangan ringkas dalam Bahasa Melayu kenapa ia betul atau salah dari sudut nahu.",
+        "ayat_pembetulan": "Tulis semula ayat dengan baris (tashkeel) yang betul 100%.",
+        "ulasan_guru": "Penerangan ringkas dalam Bahasa Melayu kenapa ia betul atau salah.",
         "skor": 100
     }`;
 
     try {
-        // Matikan butang sementara AI berfikir
-        const butangSemak = event.target;
-        butangSemak.disabled = true;
+        const butangSemak = document.querySelector('button[onclick="semakKarangan()"]');
+        if (butangSemak) butangSemak.disabled = true;
 
         const response = await fetch(GEMINI_URL, {
             method: 'POST',
@@ -587,19 +638,17 @@ async function semakKarangan() {
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
-        butangSemak.disabled = false;
+        if (butangSemak) butangSemak.disabled = false;
 
         if (response.status === 429) throw new Error("Had API tercapai. Tunggu sebentar.");
-        
         const data = await response.json();
         if (!response.ok) throw new Error("Ralat pelayan AI.");
 
         const json = ekstrakJSON(data.candidates[0].content.parts[0].text);
-        
-        // Render kad maklum balas UI
         const warnaStatus = json.skor > 50 ? "#27ae60" : "#e74c3c";
         const ikonStatus = json.skor > 50 ? "✅" : "💡";
 
+        // Hasil UI yang merangkumi Kotak Pertanyaan Lanjutan ke Gemini
         hasil.innerHTML = `
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid ${warnaStatus};">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-bottom: 15px;">
@@ -608,20 +657,69 @@ async function semakKarangan() {
                 </div>
                 
                 <small style="color: #7f8c8d; font-weight: bold;">AYAT SEBENAR (DENGAN BARIS):</small>
-                <div style="font-size: 2em; direction: rtl; font-family: 'Amiri', serif; color: #2c3e50; margin: 10px 0;">
+                <div id="teks-ayat-betul" style="font-size: 2em; direction: rtl; font-family: 'Amiri', serif; color: #2c3e50; margin: 10px 0;">
                     ${json.ayat_pembetulan}
                 </div>
                 
                 <small style="color: #7f8c8d; font-weight: bold; margin-top: 15px; display: block;">ULASAN GURU AI:</small>
-                <p style="color: #34495e; font-size: 1.05em; line-height: 1.5; margin-top: 5px;">
+                <p id="teks-ulasan" style="color: #34495e; font-size: 1.05em; line-height: 1.5; margin-top: 5px;">
                     ${json.ulasan_guru}
                 </p>
+
+                <!-- UI: Eksport Soalan Lanjutan ke Portal Gemini -->
+                <div style="margin-top: 25px; padding: 15px; background: #e8f0fe; border-radius: 8px; border: 1px dashed #4285f4;">
+                    <h4 style="color: #1967d2; margin-top: 0; margin-bottom: 10px;">Masih keliru? Tanya AI lebih lanjut:</h4>
+                    <input type="text" id="soalan-lanjutan" placeholder="Cth: Mengapa perkataan ini berbaris fathah?" style="width: 100%; padding: 10px; font-size: 1em; border-radius: 5px; border: 1px solid #aebac9; margin-bottom: 10px; box-sizing: border-box;">
+                    
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button onclick="salinDanBukaGemini()" style="background-color: #4285f4; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+                            🚀 Hantar ke Portal Gemini
+                        </button>
+                        <span id="mesej-salin" style="display: none; color: #0f9d58; font-weight: bold; font-size: 0.9em;">✅ Teks disalin! Sedang memuatkan...</span>
+                    </div>
+                </div>
             </div>
         `;
         loading.innerText = "";
 
     } catch (err) {
         loading.innerText = "Gagal menyemak: " + err.message;
-        document.querySelector('button[onclick="semakKarangan()"]').disabled = false;
+        const butangSemak = document.querySelector('button[onclick="semakKarangan()"]');
+        if (butangSemak) butangSemak.disabled = false;
     }
+}
+
+function salinDanBukaGemini() {
+    const ayatAsal = document.getElementById('input-karangan').value;
+    const ayatBetul = document.getElementById('teks-ayat-betul').innerText;
+    const ulasan = document.getElementById('teks-ulasan').innerText;
+    const soalan = document.getElementById('soalan-lanjutan').value.trim();
+
+    if (!soalan) {
+        alert("Sila taip soalan anda di dalam kotak yang disediakan.");
+        return;
+    }
+
+    // Mencantumkan data untuk prompt bersepadu
+    const promptLengkap = `Konteks Latihan Bahasa Arab (Bab: ${babAktif}):\n` +
+        `1. Ayat Asal Saya: ${ayatAsal}\n` +
+        `2. Ayat Pembetulan AI: ${ayatBetul}\n` +
+        `3. Ulasan Ringkas AI: ${ulasan}\n\n` +
+        `Soalan Lanjutan Saya:\n"${soalan}"\n\n` +
+        `Sila berikan penjelasan nahu dan saraf secara terperinci (dalam Bahasa Melayu) berdasarkan soalan saya di atas.`;
+
+    // Salin ke clipboard pengguna
+    navigator.clipboard.writeText(promptLengkap).then(() => {
+        const mesej = document.getElementById('mesej-salin');
+        mesej.style.display = 'inline'; // Tunjuk mesej "Teks disalin"
+        
+        // Buka tab portal Gemini selepas 1.5 saat
+        setTimeout(() => {
+            mesej.style.display = 'none';
+            window.open('https://gemini.google.com/app', '_blank');
+        }, 1500);
+    }).catch(err => {
+        console.error("Ralat Clipboard: ", err);
+        alert("Penyemak imbas anda menghalang salinan automatik. Sila salin secara manual.");
+    });
 }
