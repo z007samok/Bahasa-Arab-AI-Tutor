@@ -95,7 +95,7 @@
             <button onclick="pergiKeFasa5()" style="background-color: #8e44ad;">Teruskan ke Bina Ayat (Fasa 5) ✍️→</button>
         </div>
     </div>
-        <!-- FASA 5: LATIHAN BINA AYAT (MENGARANG) -->
+       <!-- FASA 5: LATIHAN BINA AYAT (MENGARANG) -->
         <div id="section-fasa5" style="display:none;">
             <h2>Latihan Bina Ayat</h2>
             <div style="background: #fff; padding: 25px; border-radius: 12px; border: 2px solid #8e44ad; text-align: center; margin-top: 15px;">
@@ -103,17 +103,32 @@
                 
                 <textarea id="input-karangan" rows="2" placeholder="اكتب جملتك هنا..." style="width: 90%; font-size: 1.8em; font-family: 'Amiri', serif; direction: rtl; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"></textarea>
                 
+                <!-- Butang Toggle Keyboard Arab -->
+                <br>
+                <button onclick="toggleKeyboardArab()" style="background-color: #34495e; padding: 6px 12px; font-size: 0.9em; border-radius: 6px; margin-top: 10px;">⌨️ Buka/Tutup Papan Kekunci Arab</button>
+                
+                <!-- Kontena Keyboard (Akan diisi oleh JavaScript) -->
+                <div id="keyboard-arab" style="display:none; max-width: 600px; margin: 15px auto; background: #ecf0f1; padding: 15px; border-radius: 8px; border: 1px solid #bdc3c7;">
+                    <div id="papan-kekunci-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; direction: rtl;"></div>
+                    <div style="margin-top: 10px; display: flex; justify-content: center; gap: 10px;">
+                        <button onclick="taipArab(' ')" style="padding: 10px 40px; font-size: 1.2em; border-radius: 5px; cursor: pointer; background: white; border: 1px solid #ccc;">Jarak (Space)</button>
+                        <button onclick="padamArab()" style="padding: 10px 20px; font-size: 1.2em; border-radius: 5px; cursor: pointer; background: #e74c3c; color: white; border: none;">⌫ Padam</button>
+                    </div>
+                </div>
+        
                 <br>
                 <button onclick="semakKarangan()" style="background-color: #8e44ad; font-size: 1.1em; margin-top: 15px; padding: 10px 25px;">🔍 Semak Ayat Saya</button>
                 
                 <div id="loading-fasa5" style="color: purple; font-style: italic; margin-top: 10px;"></div>
+                
+                <!-- Keputusan AI akan dipaparkan di sini -->
                 <div id="hasil-semakan" style="margin-top: 20px; text-align: left;"></div>
             </div>
-        
-        <br>
-        <button onclick="kembaliKeFasa4Dari5()" style="background-color: #95a5a6;">← Balik ke Audio</button>
-        <button onclick="kembaliKeMenuUtamaDariFasa5()" style="background-color: #27ae60;">Selesai Modul & Ke Menu Utama 🏠</button>
-    </div>
+            
+            <br>
+            <button onclick="kembaliKeFasa4Dari5()" style="background-color: #95a5a6;">← Balik ke Audio</button>
+            <button onclick="kembaliKeMenuUtamaDariFasa5()" style="background-color: #27ae60;">Selesai Modul & Ke Menu Utama 🏠</button>
+        </div>
     <script src="app.js"></script>
 </body>
 </html>
