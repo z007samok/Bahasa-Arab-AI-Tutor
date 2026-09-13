@@ -565,50 +565,40 @@ function toggleKeyboardArab() {
 
 function binaKeyboardArab() {
     const grid = document.getElementById('papan-kekunci-grid');
-    grid.innerHTML = ""; // Bersihkan grid lama
-    
-    // Kemas kini gaya grid utama supaya menjadi lajur (column) bertingkat
-    grid.style.display = "flex";
-    grid.style.flexDirection = "column";
-    grid.style.gap = "6px";
-    grid.style.alignItems = "center";
-    grid.style.direction = "ltr"; // Kiri-ke-Kanan supaya format QWERTY teratur
+    grid.innerHTML = ''; 
+    // Ubah paparan grid utama supaya barisan disusun menegak (ke bawah)
+    grid.style.display = "block"; 
 
-    // Susunan mengikut format fizikal Arabic 101 QWERTY Standard
-    const barisPapanKekunci = [
-        // Baris 1: Angka / Simbol atas (Q W E R T Y U I O P [ ])
-        ['ذ', 'ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
-        // Baris 2: Tengah (A S D F G H J K L ; ')
+    // Susunan mengikut piawaian Papan Kekunci Arab (Standard QWERTY)
+    const aksaraRows = [
+        // Baris 1: Simbol Baris (Tashkeel) & Keluarga Alif + Dhal
+        ['َ', 'ِ', 'ُ', 'ً', 'ٍ', 'ٌ', 'ْ', 'ّ', 'أ', 'إ', 'آ', 'ذ'],
+        // Baris 2: Barisan Huruf Atas (Q - ] di PC)
+        ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
+        // Baris 3: Barisan Huruf Tengah (A - ' di PC)
         ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك', 'ط'],
-        // Baris 3: Bawah (Z X C V B N M , . /)
-        ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ'],
-        // Baris 4: Harakat (Baris) & Keluarga Hamzah yang selalu diakses dengan butang Shift
-        ['أ', 'إ', 'آ', 'َ', 'ِ', 'ُ', 'ً', 'ٍ', 'ٌ', 'ْ', 'ّ']
+        // Baris 4: Barisan Huruf Bawah (Z - / di PC)
+        ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ']
     ];
 
-    // Proses dan bina setiap baris satu per satu
-    barisPapanKekunci.forEach(baris => {
-        const divBaris = document.createElement('div');
-        divBaris.style.display = "flex";
-        divBaris.style.justifyContent = "center";
-        divBaris.style.gap = "6px";
-
+    aksaraRows.forEach(baris => {
+        const barisDiv = document.createElement('div');
+        // Susun setiap baris secara mendatar dan bermula dari kanan (RTL)
+        barisDiv.style.cssText = "display: flex; justify-content: center; gap: 5px; margin-bottom: 6px; direction: rtl;";
+        
         baris.forEach(huruf => {
             const btn = document.createElement('button');
             btn.innerText = huruf;
-            btn.style.cssText = "padding: 10px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; color: #2c3e50; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; min-width: 45px; text-align: center;";
-            
-            // Tambah kesan sentuhan ketika ditaip (Hover effect)
-            btn.onmouseover = () => btn.style.backgroundColor = "#ecf0f1";
-            btn.onmouseout = () => btn.style.backgroundColor = "white";
-            
+            // Lebar butang diseragamkan (width: 42px) supaya muat dalam kotak
+            btn.style.cssText = "padding: 10px 0; font-size: 1.4em; font-family: 'Amiri', serif; background: white; color: #2c3e50; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; width: 42px; text-align: center;";
             btn.onclick = () => taipArab(huruf);
-            divBaris.appendChild(btn);
+            barisDiv.appendChild(btn);
         });
-
-        grid.appendChild(divBaris);
+        
+        grid.appendChild(barisDiv);
     });
 }
+   
 function taipArab(huruf) {
     const input = document.getElementById('input-karangan');
     // Masukkan huruf pada kedudukan cursor atau di hujung
