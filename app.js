@@ -565,24 +565,50 @@ function toggleKeyboardArab() {
 
 function binaKeyboardArab() {
     const grid = document.getElementById('papan-kekunci-grid');
-    // Susunan huruf asas & baris (tashkeel)
-    const aksara = [
-        'ض','ص','ث','ق','ف','غ','ع','ه','خ','ح','ج','د',
-        'ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط',
-        'ئ','ء','ؤ','ر','لا','ى','ة','و','ز','ظ',
-        'َ','ِ','ُ','ً','ٍ','ٌ','ْ','ّ'
+    grid.innerHTML = ""; // Bersihkan grid lama
+    
+    // Kemas kini gaya grid utama supaya menjadi lajur (column) bertingkat
+    grid.style.display = "flex";
+    grid.style.flexDirection = "column";
+    grid.style.gap = "6px";
+    grid.style.alignItems = "center";
+    grid.style.direction = "ltr"; // Kiri-ke-Kanan supaya format QWERTY teratur
+
+    // Susunan mengikut format fizikal Arabic 101 QWERTY Standard
+    const barisPapanKekunci = [
+        // Baris 1: Angka / Simbol atas (Q W E R T Y U I O P [ ])
+        ['ذ', 'ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
+        // Baris 2: Tengah (A S D F G H J K L ; ')
+        ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك', 'ط'],
+        // Baris 3: Bawah (Z X C V B N M , . /)
+        ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ'],
+        // Baris 4: Harakat (Baris) & Keluarga Hamzah yang selalu diakses dengan butang Shift
+        ['أ', 'إ', 'آ', 'َ', 'ِ', 'ُ', 'ً', 'ٍ', 'ٌ', 'ْ', 'ّ']
     ];
 
-    aksara.forEach(huruf => {
-        const btn = document.createElement('button');
-        btn.innerText = huruf;
-        // Penambahan 'color: #2c3e50;' supaya huruf warna gelap
-        btn.style.cssText = "padding: 10px 15px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; color: #2c3e50; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; width: 45px; text-align: center;";
-        btn.onclick = () => taipArab(huruf);
-        grid.appendChild(btn);
+    // Proses dan bina setiap baris satu per satu
+    barisPapanKekunci.forEach(baris => {
+        const divBaris = document.createElement('div');
+        divBaris.style.display = "flex";
+        divBaris.style.justifyContent = "center";
+        divBaris.style.gap = "6px";
+
+        baris.forEach(huruf => {
+            const btn = document.createElement('button');
+            btn.innerText = huruf;
+            btn.style.cssText = "padding: 10px; font-size: 1.4em; font-family: 'Amiri', serif; background: white; color: #2c3e50; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; min-width: 45px; text-align: center;";
+            
+            // Tambah kesan sentuhan ketika ditaip (Hover effect)
+            btn.onmouseover = () => btn.style.backgroundColor = "#ecf0f1";
+            btn.onmouseout = () => btn.style.backgroundColor = "white";
+            
+            btn.onclick = () => taipArab(huruf);
+            divBaris.appendChild(btn);
+        });
+
+        grid.appendChild(divBaris);
     });
 }
-
 function taipArab(huruf) {
     const input = document.getElementById('input-karangan');
     // Masukkan huruf pada kedudukan cursor atau di hujung
